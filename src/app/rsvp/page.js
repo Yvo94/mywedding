@@ -176,411 +176,336 @@ const handleSubmit = async (e) => {
       {/* =====================================================
           HEADER
       ====================================================== */}
-      <header className="absolute left-0 right-0 top-0 z-20">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
+      {/* HEADER */}
+      <header className="relative z-20 bg-[#332824]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
           <Link
             href="/"
-            className="font-serif text-xl tracking-[0.25em] text-white"
+            className="font-serif text-xl tracking-[0.2em] text-white"
           >
             A & A
           </Link>
 
           <Link
             href="/"
-            className="text-sm text-white/85 transition hover:text-white"
+            className="text-xs text-white/80 transition hover:text-[#F1C5B4] sm:text-sm"
           >
             ← Retour au mariage
           </Link>
         </div>
       </header>
 
+      
       {/* =====================================================
-          HERO
+          HERO + FORMULAIRE RSVP
       ====================================================== */}
-      <section className="relative flex min-h-[460px] items-center justify-center overflow-hidden bg-[#332824]">
-        {/* Décoration */}
-        <div className="absolute left-10 top-28 h-24 w-24 rounded-full border border-[#D99072]/30" />
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-stretch gap-5 px-4 py-6 md:grid-cols-2 md:gap-6 md:px-6 md:py-8">
+        
+        {/* HERO À GAUCHE */}
+        <section className="relative flex min-h-[360px] h-full flex-col items-center justify-center overflow-hidden rounded-[2rem] bg-[#332824] px-5 py-6 text-center text-white shadow-xl md:min-h-0">
 
-        <div className="absolute bottom-16 right-10 h-32 w-32 rounded-full border border-[#D99072]/20" />
+          <div className="absolute left-6 top-8 h-20 w-20 rounded-full border border-[#D99072]/30" />
+          <div className="absolute bottom-8 right-6 h-28 w-28 rounded-full border border-[#D99072]/20" />
 
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(198,106,74,0.20),_transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(198,106,74,0.20),_transparent_60%)]" />
 
-        <div className="relative z-10 px-6 pt-16 text-center text-white">
-          <p className="mb-5 text-xs uppercase tracking-[0.45em] text-[#F1C5B4]">
-            Axel & Améline
-          </p>
+          <div className="relative z-10">
+            <p className="mb-3 text-xs uppercase tracking-[0.3em] text-[#F1C5B4]">
+              Axel & Améline
+            </p>
 
-          <h1 className="font-serif text-6xl md:text-8xl">
-            RSVP
-          </h1>
+            <h1 className="font-serif text-5xl md:text-7xl">
+              RSVP
+            </h1>
 
-          <div className="mx-auto mt-7 h-px w-16 bg-[#C66A4A]" />
+            <div className="mx-auto mt-5 h-px w-14 bg-[#C66A4A]" />
 
-          <p className="mx-auto mt-6 max-w-lg text-sm leading-7 text-white/70 md:text-base">
-            Nous serions très heureux de partager cette journée
-            exceptionnelle avec vous.
-          </p>
+            <p className="mx-auto mt-5 max-w-sm text-sm leading-6 text-white/75">
+              Nous serions très heureux de partager cette journée
+              exceptionnelle avec vous.
+            </p>
 
-          <p className="mt-6 text-xs uppercase tracking-[0.3em] text-[#D99072]">
-            14 Novembre 2026
-          </p>
-        </div>
-      </section>
+            <p className="mt-5 text-xs uppercase tracking-[0.25em] text-[#D99072]">
+              14 Novembre 2026
+            </p>
 
-      {/* =====================================================
-          FORMULAIRE
-      ====================================================== */}
-      <section className="px-6 py-20 md:py-28">
-        <div className="mx-auto max-w-2xl">
+            <p className="mt-10 font-serif text-lg gras text-white/70">
+              « L’amour est patient, l’amour est serviable… il espère tout, il endure tout. »
+            </p>
+            <p className="mt-10 font-serif text-lg italic text-[#D99172]">
+              1 Corinthiens 13, 4-7
+            </p>
+          </div>
+        </section>
+
+        {/* FORMULAIRE À DROITE */}
+        <section className="rounded-2xl border border-[#E8D8CE] bg-white p-5 shadow-md md:p-6">
+
           {!submitted ? (
             <>
-              {/* INTRO */}
-              <div className="mb-12 text-center">
-                <p className="text-xs uppercase tracking-[0.35em] text-[#C66A4A]">
+              {/* INTRODUCTION COMPACTE */}
+              <div className="mb-6 text-center">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[#C66A4A]">
                   Votre présence
                 </p>
 
-                <h2 className="mt-4 font-serif text-4xl md:text-5xl">
+                <h2 className="mt-2 font-serif text-3xl md:text-4xl">
                   Confirmez votre présence
                 </h2>
 
-                <div className="mx-auto mt-6 h-px w-12 bg-[#D99072]" />
+                <div className="mx-auto mt-4 h-px w-12 bg-[#D99072]" />
 
-                <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-[#75665F]">
-                  Merci de nous indiquer si vous pourrez être présents
-                  à notre mariage du 14 novembre 2026.
+                <p className="mt-3 text-sm leading-6 text-[#75665F]">
+                  Merci de nous indiquer si vous serez parmi nous le
+                  14 novembre 2026.
                 </p>
               </div>
 
-              {/* FORM */}
-              <form
-                onSubmit={handleSubmit}
-                className="rounded-[2rem] border border-[#E8DAD2] bg-white p-7 shadow-sm md:p-10"
-              >
+              <form onSubmit={handleSubmit} className="space-y-4">
+
                 {/* NOM + WHATSAPP */}
-              <div className="mb-6 grid gap-5 md:grid-cols-2">
-                {/* NOM */}
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Nom et prénoms *
-                  </label>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
+                      Nom et prénoms *
+                    </label>
 
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Ex. Yves Roland YAO"
-                    className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-4 py-3.5 text-sm outline-none transition placeholder:text-[#B2A8A1] focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
-                  />
-                </div>
-
-                {/* WHATSAPP */}
-                <div>
-                  <label
-                    htmlFor="whatsapp"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Numéro WhatsApp
-                  </label>
-
-                  <input
-                    id="whatsapp"
-                    type="tel"
-                    name="whatsapp"
-                    value={formData.whatsapp}
-                    onChange={handleChange}
-                    placeholder="05 44 36 03 78"
-                    className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-4 py-3.5 text-sm outline-none transition placeholder:text-[#B2A8A1] focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
-                  />
-                </div>
-              </div>
-
-
-              {/* LIEN + CÔTÉ */}
-              <div className="mb-6 grid gap-5 md:grid-cols-2">
-                {/* LIEN */}
-                <div>
-                  <label
-                    htmlFor="relation"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Lien avec les mariés *
-                  </label>
-
-                  <select
-                    id="relation"
-                    name="relation"
-                    required
-                    value={formData.relation}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-4 py-3.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
-                  >
-                    <option value="">
-                      Sélectionnez une option
-                    </option>
-
-                    <option value="parent">
-                      Parent
-                    </option>
-
-                    <option value="ami">
-                      Ami(e)
-                    </option>
-
-                    <option value="collegue">
-                      Collègue
-                    </option>
-
-                    <option value="communaute_religieuse">
-                      Communauté religieuse
-                    </option>
-                  </select>
-                </div>
-
-                {/* CÔTÉ */}
-                <div>
-                  <label
-                    htmlFor="side"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Côté *
-                  </label>
-
-                  <select
-                    id="side"
-                    name="side"
-                    required
-                    value={formData.side}
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-4 py-3.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
-                  >
-                    <option value="">
-                      Sélectionnez un côté
-                    </option>
-
-                    <option value="Axel">
-                      Axel
-                    </option>
-
-                    <option value="Améline">
-                      Améline
-                    </option>
-
-                    <option value="Axel & Améline">
-                      Axel & Améline
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-
-              {/* PRÉSENCE */}
-              <div className="mb-6">
-                <label className="mb-3 block text-sm font-medium">
-                  Serez-vous présent(e) ? *
-                </label>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-
-                  {/* OUI */}
-                  <label
-                    className={`cursor-pointer rounded-xl border p-4 transition ${
-                      formData.attendance === "Présent"
-                        ? "border-[#C66A4A] bg-[#F8E9E2]"
-                        : "border-[#DED3CC] bg-[#FDFCFB] hover:border-[#D99072]"
-                    }`}
-                  >
                     <input
-                      type="radio"
-                      name="attendance"
-                      value="Présent"
-                      checked={formData.attendance === "Présent"}
-                      onChange={handleChange}
+                      id="name"
+                      name="name"
+                      type="text"
                       required
-                      className="mr-3 accent-[#C66A4A]"
-                    />
-
-                    <span className="text-sm">
-                      Oui, je serai présent(e)
-                    </span>
-                  </label>
-
-                  {/* NON */}
-                  <label
-                    className={`cursor-pointer rounded-xl border p-4 transition ${
-                      formData.attendance === "Absent"
-                        ? "border-[#C66A4A] bg-[#F8E9E2]"
-                        : "border-[#DED3CC] bg-[#FDFCFB] hover:border-[#D99072]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="attendance"
-                      value="Absent"
-                      checked={formData.attendance === "Absent"}
+                      value={formData.name}
                       onChange={handleChange}
-                      className="mr-3 accent-[#C66A4A]"
+                      placeholder="Ex. Yves Roland YAO"
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
                     />
+                  </div>
 
-                    <span className="text-sm">
-                      Désolé, je ne pourrai pas venir
-                    </span>
-                  </label>
+                  <div>
+                    <label htmlFor="whatsapp" className="mb-1.5 block text-sm font-medium">
+                      Numéro WhatsApp
+                    </label>
 
+                    <input
+                      id="whatsapp"
+                      name="whatsapp"
+                      type="tel"
+                      value={formData.whatsapp}
+                      onChange={handleChange}
+                      placeholder="05 44 36 03 78"
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
+                    />
+                  </div>
                 </div>
-              </div>
 
+                {/* LIEN + CÔTÉ */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="relation" className="mb-1.5 block text-sm font-medium">
+                      Lien avec les mariés *
+                    </label>
 
-              {/* NOMBRE DE PERSONNES ACCOMPAGNANTES */}
-              {formData.attendance === "Présent" && (
-                <div className="mb-6">
-                  <label
-                    htmlFor="guests"
-                    className="mb-2 block text-sm font-medium"
-                  >
-                    Nombre de personnes accompagnantes
+                    <select
+                      id="relation"
+                      name="relation"
+                      required
+                      value={formData.relation}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none focus:border-[#C66A4A]"
+                    >
+                      <option value="">Sélectionnez</option>
+                      <option value="parent">Parent</option>
+                      <option value="ami">Ami(e)</option>
+                      <option value="collegue">Collègue</option>
+                      <option value="communaute_religieuse">Communauté religieuse</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="side" className="mb-1.5 block text-sm font-medium">
+                      Côté *
+                    </label>
+
+                    <select
+                      id="side"
+                      name="side"
+                      required
+                      value={formData.side}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none focus:border-[#C66A4A]"
+                    >
+                      <option value="">Sélectionnez</option>
+                      <option value="Axel">Axel</option>
+                      <option value="Améline">Améline</option>
+                      <option value="Axel & Améline">Axel & Améline</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* PRÉSENCE */}
+                <div>
+                  <p className="mb-2 text-sm font-medium">
+                    Serez-vous présent(e) ? *
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <label
+                      className={`flex cursor-pointer items-center rounded-xl border p-3 text-sm transition ${
+                        formData.attendance === "Présent"
+                          ? "border-[#C66A4A] bg-[#F8E9E2]"
+                          : "border-[#DED3CC] bg-[#FDFCFB] hover:border-[#D99072]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="attendance"
+                        value="Présent"
+                        checked={formData.attendance === "Présent"}
+                        onChange={handleChange}
+                        required
+                        className="mr-2 accent-[#C66A4A]"
+                      />
+                      Oui, je serai présent(e)
+                    </label>
+
+                    <label
+                      className={`flex cursor-pointer items-center rounded-xl border p-3 text-sm transition ${
+                        formData.attendance === "Absent"
+                          ? "border-[#C66A4A] bg-[#F8E9E2]"
+                          : "border-[#DED3CC] bg-[#FDFCFB] hover:border-[#D99072]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="attendance"
+                        value="Absent"
+                        checked={formData.attendance === "Absent"}
+                        onChange={handleChange}
+                        required
+                        className="mr-2 accent-[#C66A4A]"
+                      />
+                      Je ne pourrai pas venir
+                    </label>
+                  </div>
+                </div>
+
+                {/* ACCOMPAGNANTS */}
+                {formData.attendance === "Présent" && (
+                  <div>
+                    <label htmlFor="guests" className="mb-1.5 block text-sm font-medium">
+                      Nombre d'accompagnants
+                    </label>
+
+                    <select
+                      id="guests"
+                      name="guests"
+                      value={formData.guests}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none focus:border-[#C66A4A]"
+                    >
+                      <option value="0">Je viens seul(e)</option>
+                      <option value="1">1 accompagnant</option>
+                      <option value="2">2 accompagnants</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* MESSAGE */}
+                <div>
+                  <label htmlFor="message" className="mb-1.5 block text-sm font-medium">
+                    Un petit mot pour les mariés
                   </label>
 
-                  <select
-                    id="guests"
-                    name="guests"
-                    value={formData.guests}
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={2}
+                    value={formData.message}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-4 py-3.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
-                  >
-                    <option value="0">
-                      Je viens seul(e)
-                    </option>
-
-                    <option value="1">
-                      1 accompagnant
-                    </option>
-
-                    <option value="2">
-                      2 accompagnants
-                    </option>
-                  </select>
+                    placeholder="Écrivez-nous un petit mot..."
+                    className="w-full resize-y rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
+                  />
                 </div>
-              )}
-
-              {/* MESSAGE */}
-              <div className="mb-8">
-                <label
-                  htmlFor="message"
-                  className="mb-2 block text-sm font-medium"
-                >
-                  Un petit mot pour les mariés
-                </label>
-
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="4"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Écrivez-nous un petit mot..."
-                  className="w-full resize-none rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-4 py-3.5 text-sm outline-none transition placeholder:text-[#B2A8A1] focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
-                />
-              </div>
 
                 {/* BOUTON */}
                 <button
                   type="submit"
-                  className="w-full rounded-full bg-[#C66A4A] px-6 py-4 text-sm font-medium tracking-wide text-white shadow-lg shadow-[#C66A4A]/15 transition hover:bg-[#9E4F38]"
+                  disabled={submitting}
+                  className="w-full rounded-full bg-[#C66A4A] px-5 py-3 text-sm font-medium tracking-wide text-white shadow-lg shadow-[#C66A4A]/15 transition hover:bg-[#9E4F38] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Confirmer ma réponse
+                  {submitting ? "Enregistrement..." : "Confirmer ma réponse"}
                 </button>
 
-                <p className="mt-5 text-center text-xs leading-5 text-[#928982]">
-                  Vos informations seront utilisées uniquement dans
-                  le cadre de notre mariage.
+                <p className="text-center text-xs leading-5 text-[#928982]">
+                  Vos informations seront utilisées uniquement dans le cadre de notre mariage.
                 </p>
               </form>
             </>
           ) : (
-            /* =================================================
-               CONFIRMATION
-            ================================================== */
-           
-           <div className="rounded-[2rem] border border-[#E8DAD2] bg-white px-6 py-12 text-center shadow-sm md:px-12">
+            /* CONFIRMATION DANS LE CADRE DE DROITE */
+            <div className="flex h-full flex-col items-center justify-center py-8 text-center">
 
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F8E9E2] font-serif text-2xl text-[#C66A4A]">
-              ♥
-            </div>
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#F8E9E2] font-serif text-2xl text-[#C66A4A]">
+                ♥
+              </div>
 
-            <p className="mt-7 text-xs uppercase tracking-[0.35em] text-[#C66A4A]">
-              Merci
-            </p>
+              <p className="mt-5 text-xs uppercase tracking-[0.3em] text-[#C66A4A]">
+                Merci
+              </p>
 
-            <h2 className="mt-4 font-serif text-4xl md:text-5xl">
-              Votre présence est confirmée
-            </h2>
+              <h2 className="mt-3 font-serif text-3xl md:text-4xl">
+                Votre réponse est enregistrée
+              </h2>
 
-            <div className="mx-auto mt-6 h-px w-12 bg-[#D99072]" />
+              <div className="mx-auto mt-5 h-px w-12 bg-[#D99072]" />
 
-            <p className="mx-auto mt-6 max-w-md text-sm leading-7 text-[#75665F]">
-              Merci beaucoup{" "}
-              <strong className="text-[#9E4F38]">
-                {formData.name}
-              </strong>
-              . Nous sommes heureux de vous compter
-              parmi nous pour cette belle journée.
-            </p>
+              <p className="mt-5 text-sm leading-6 text-[#75665F]">
+                Merci beaucoup{" "}
+                <strong className="text-[#9E4F38]">{formData.name}</strong>.
+                {" "}Nous vous remercions d'avoir répondu à notre invitation.
+              </p>
 
-            {/* CARTE */}
-            {guestData && (
-              <WeddingInvitationCard
-                guest={guestData}
-                numberOfGuests={Number(formData.guests)}
-              />
-            )}
+              {guestData && (
+                <div className="mx-auto mt-3 w-full min-w-0 max-w-[320px]">
+                  <WeddingInvitationCard
+                    guest={guestData}
+                    numberOfGuests={Number(formData.guests)}
+                  />
+                </div>
+              )}
 
-            {/* MODIFICATION */}
-            <button
-              type="button"
-              onClick={() => {
-                setSubmitted(false);
-              }}
-              className="mt-8 text-sm font-medium text-[#C66A4A] underline underline-offset-4"
-            >
-              ✏ Modifier ma réponse
-            </button>
+              <button
+                type="button"
+                onClick={() => setSubmitted(false)}
+                className="mt-6 text-sm font-medium text-[#C66A4A] underline underline-offset-4"
+              >
+                ✏ Modifier ma réponse
+              </button>
 
-            <div>
               <Link
                 href="/"
-                className="mt-6 inline-flex rounded-full border border-[#DED3CC] px-7 py-3.5 text-sm text-[#75665F] transition hover:border-[#C66A4A] hover:text-[#C66A4A]"
+                className="mt-5 inline-flex rounded-full border border-[#DED3CC] px-6 py-3 text-sm text-[#75665F] transition hover:border-[#C66A4A] hover:text-[#C66A4A]"
               >
                 Retour au mariage
               </Link>
             </div>
-
-          </div>
           )}
-        </div>
-      </section>
+
+        </section>
+      </div>
 
       {/* =====================================================
           FOOTER
       ====================================================== */}
-      <footer className="border-t border-[#E8DAD2] bg-[#FAF7F3] px-6 py-12 text-center">
-        <p className="font-serif text-3xl">
+      <footer className="border-t border-[#E8DAD2] bg-[#FAF7F3] px-6 py-6 text-center">
+        <p className="font-serif text-2xl">
           Axel <span className="text-[#C66A4A]">&</span> Améline
         </p>
-
-        <p className="mt-3 text-xs uppercase tracking-[0.3em] text-[#9E4F38]">
+        <p className="mt-2 text-[10px] uppercase tracking-[0.25em] text-[#9E4F38]">
           14 Novembre 2026
         </p>
-
-        <div className="mx-auto mt-6 h-px w-10 bg-[#D99072]" />
-
-        <p className="mt-5 text-xs text-[#928982]">
+        <p className="mt-3 text-xs text-[#928982]">
           L'amour est plus grand que tout
         </p>
       </footer>
