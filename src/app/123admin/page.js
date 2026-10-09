@@ -289,7 +289,7 @@ const pendingPercentage =
 
     if (!phone || phone.length < 8 || phone.length > 15) {
       alert(
-        `Le numéro WhatsApp de ${guest.name || "cet invité"} est absent ou invalide.`
+        `Le numéro WhatsApp de ${guest.name || "cet invité"} est absent ou invalide!`
       );
       return;
     }
