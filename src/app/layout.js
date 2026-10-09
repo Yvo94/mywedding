@@ -27,8 +27,8 @@ export const metadata = {
     images: [
       {
         url: "/og-image.jpg",
-        width: 1600,
-        height: 838,
+        width: 1200,
+        height: 630,
         alt: "Axel et Améline",
       },
     ],
