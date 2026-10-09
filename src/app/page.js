@@ -127,7 +127,7 @@ export default function HomePage() {
                 Galerie
               </NavLink>
 
-              <NavLink href="#message">
+              <NavLink href="#messages">
                 Livre d'Or
               </NavLink>
 
@@ -182,7 +182,7 @@ export default function HomePage() {
                 </MobileNavLink>
 
                 <MobileNavLink
-                  href="#message"
+                  href="#messages"
                   onClick={() => setMenuOpen(false)}
                 >
                   Le livre d'Or
@@ -343,7 +343,7 @@ export default function HomePage() {
           {/* IMAGE */}
           <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
             <Image
-              src="/images/story.png"
+              src="/images/story.jpg"
               alt="Axel et Améline"
               fill
               className="object-cover"
@@ -481,8 +481,9 @@ export default function HomePage() {
               icon="🍽️"
               title="Entrée"
               items={[
-                "À définir",
-                "À définir",
+                "Salade composée au thon",
+                "Cocktail de crevettes",
+                "Salade de poulet",
               ]}
             />
 
@@ -490,8 +491,9 @@ export default function HomePage() {
               icon="🍲"
               title="Plat principal"
               items={[
-                "À définir",
-                "Garnitures & accompagnements",
+                "Kedjenou de poisson aux feuilles accompagné de riz blanc",
+                "Igname bouillie Kponan & pâte",
+                "Tchèp & Attiéké",
               ]}
             />
 
@@ -499,8 +501,8 @@ export default function HomePage() {
               icon="🍰"
               title="Dessert"
               items={[
-                "Pièce montée",
-                "Desserts gourmands",
+                "Douceurs pour toute la table",
+                "Pièce sucrée pour clôturer le repas.",
                 "Fruits frais",
               ]}
             />
@@ -512,29 +514,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* =====================================================
-          CITATION
-      ====================================================== */}
-      {/*
-      <section className="bg-[#C66A4A] px-6 py-24 text-center text-white md:py-32">
-        <div className="mx-auto max-w-3xl">
-          <span className="font-serif text-5xl text-[#F3CDBE]">
-            “
-          </span>
-
-          <p className="mt-2 font-serif text-3xl leading-relaxed md:text-5xl">
-            L'amour est plus grand que tout
-          </p>
-
-          <div className="mx-auto mt-8 h-px w-12 bg-white/50" />
-
-          <p className="mt-5 text-xs uppercase tracking-[0.35em] text-white/70">
-            Axel & Améline
-          </p>
-        </div>
-      </section>
-      */
-      }
       {/* =====================================================
       {/* =====================================================
           CITATIONS BIBLIQUES
@@ -714,7 +693,6 @@ export default function HomePage() {
       {/* =====================================================
           LIVRE D'OR
       ====================================================== */}
-
       <section
         id="messages"
         className="bg-[#F1E5DE] px-6 py-24 sm:px-10 lg:px-20"
