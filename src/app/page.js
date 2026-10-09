@@ -21,6 +21,8 @@ export default function HomePage() {
   const [selectedMessage, setSelectedMessage] = useState(null);
 
   useEffect(() => {
+    document.title = "Axel & Améline | Notre mariage";
+    
     function updateCountdown() {
       const now = new Date().getTime();
       const distance = WEDDING_DATE - now;
