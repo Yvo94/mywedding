@@ -26,7 +26,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "/og-invitation.jpg",
+        url: "/og-whatsapp.jpg",
         width: 1200,
         height: 630,
         alt: "Axel et Améline",
