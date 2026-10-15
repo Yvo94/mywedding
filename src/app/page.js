@@ -21,7 +21,7 @@ export default function HomePage() {
   const [selectedMessage, setSelectedMessage] = useState(null);
 
   useEffect(() => {
-    document.title = "Axel & Améline | Notre mariage";
+    document.title = "Axel & Ameline | Notre mariage";
     
     function updateCountdown() {
       const now = new Date().getTime();
@@ -106,7 +106,7 @@ export default function HomePage() {
               href="/"
               className="font-serif text-lg tracking-[0.25em] text-white"
             >
-              Axel & Améline
+              Axel & Ameline
             </NavLink>
 
             {/* DESKTOP NAV */}
@@ -209,7 +209,7 @@ export default function HomePage() {
         <div className="absolute inset-0">
           <Image
             src="/images/axel-ameline.png"
-            alt="Axel et Améline"
+            alt="Axel et Ameline"
             fill
             priority
             className="object-cover"
@@ -226,9 +226,9 @@ export default function HomePage() {
         <div className="absolute bottom-24 right-8 h-28 w-28 rounded-full border border-[#D99072]/30 md:right-16" />
 
         {/* CONTENT */}
-        <div className="relative z-10 px-6 pt-20 text-center text-white">
-          <p className="mb-6 text-xs uppercase tracking-[0.5em] text-[#F1C5B4]">
-            Nous nous marions
+        <div className="relative z-10 px-6 pt-25 text-center text-white">
+          <p className="mb-6 text-xl uppercase tracking-[0.5em] text-[#F1C5B4]">
+            CÉLÉBRONS NOTRE MARIAGE
           </p>
 
           <h1 className="font-serif text-6xl leading-none md:text-8xl lg:text-9xl">
@@ -246,23 +246,33 @@ export default function HomePage() {
           </div>
 
           <h1 className="font-serif text-6xl leading-none md:text-8xl lg:text-9xl">
-            Améline
+            Ameline
           </h1>
-
-          <p className="mt-8 text-sm uppercase tracking-[0.35em] text-white/85">
-            14 Novembre 2026
+          
+          <div className="my-4 flex items-center justify-center gap-4 md:my-5">
+            <span className="h-px w-10 bg-[#D99072]" />
+              <span className="font-serif text-xl text-[#D99072]">
+                &#128197;
+              </span>
+            <span className="h-px w-10 bg-[#D99072]" />
+          </div>
+          <p className="mt-8 text-sm uppercase tracking-[0.35em] text-[#F1C5B4] text-lg gras">
+              SAMEDI <br/> 14 NOVEMBRE 2026
           </p>
 
           <p className="mt-3 text-sm text-white/70">
-            Mairie du Plateau
+            MAIRIE DU PLATEAU
           </p>
 
           <div className="mx-auto mt-7 h-px w-16 bg-[#C66A4A]" />
 
           <p className="mx-auto mt-6 max-w-md font-serif text-lg italic text-white/85 md:text-xl">
-            « L'amour est plus grand que tout »
+            « Ce que Dieu a unis, que l'homme ne le sépare pas »
           </p>
-
+          <p className="mx-auto max-w-md font-serif text-lg italic text-[#D99072] md:text-xl">
+            Matthieu 19,6
+          </p>
+          
           <Link
             href="/rsvp"
             className="mt-9 inline-flex rounded-full bg-[#C66A4A] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-black/10 transition hover:bg-[#9E4F38]"
@@ -312,22 +322,27 @@ export default function HomePage() {
       >
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs uppercase tracking-[0.4em] text-[#C66A4A]">
-            Une nouvelle aventure
+            UNE NOUVELLE AVENTURE À DEUX
           </p>
 
-          <h2 className="mt-5 font-serif text-4xl leading-tight md:text-6xl">
-            Deux histoires,
+          <h2 className="mt-5 font-serif text-3xl leading-tight md:text-6xl">
+            Deux cœurs, deux histoires,
             <br />
-            un même chemin.
+            un amour, une vie.
           </h2>
 
           <div className="mx-auto mt-7 h-px w-16 bg-[#D99072]" />
 
-          <p className="mx-auto mt-7 max-w-2xl text-sm leading-8 text-[#75665F] md:text-base">
-            Après avoir partagé tant de moments, de sourires et de rêves,
-            nous avons choisi d'écrire ensemble le plus beau des chapitres.
-            Nous serions heureux de vous avoir à nos côtés pour célébrer
-            notre union.
+          <p className="mx-auto mt-7 max-w-3xl text-sm leading-8 text-[#75665F] md:text-base">
+            Au fil du temps, nous avons partagé des instants précieux, 
+            des sourires complices et de beaux rêves.<br />
+            Aujourd’hui, 
+            nous avons choisi d’unir nos chemins pour écrire ensemble 
+            la plus belle histoire de notre vie.
+            <p className="text-lg gras text-[#C66A4A]">
+              <br />Nous serions heureux de vous avoir à nos côtés pour célébrer
+              notre union.
+            </p>
           </p>
         </div>
       </section>
@@ -344,7 +359,7 @@ export default function HomePage() {
           <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
             <Image
               src="/images/story.jpg"
-              alt="Axel et Améline"
+              alt="Axel et Ameline"
               fill
               className="object-cover"
             />
@@ -358,27 +373,36 @@ export default function HomePage() {
               Notre histoire.
             </p>
 
-            <h2 className="mt-5 font-serif text-4xl md:text-6xl">
-              Une histoire
+            <h2 className="mt-5 font-serif text-3xl md:text-6xl">
+              Une rencontre, un amour,
               <br />
-              qui continue...
+              une promesse pour la vie...
             </h2>
 
-            <div className="mt-7 h-px w-16 bg-[#C66A4A]" />
+            <div className="mt-7 h-px w-64 bg-[#C66A4A]" />
 
             <p className="mt-7 text-sm leading-8 text-[#75665F]">
-              Certaines rencontres changent une vie. La nôtre a commencé
-              par une rencontre et s'est transformée au fil du temps en
-              une histoire remplie de complicité, de confiance et d'amour.
+              Certaines rencontres changent un destin. 
+              La nôtre a fait naître un amour qui, au fil du temps, 
+              s’est nourri de complicité, de confiance et de tendresse.
             </p>
 
             <p className="mt-5 text-sm leading-8 text-[#75665F]">
-              Aujourd'hui, nous avons choisi de nous dire « oui » et de
-              commencer ensemble une nouvelle aventure.
+              Aujourd’hui, forts de ce chemin parcouru ensemble, 
+              nous avons choisi de nous unir pour la vie, 
+              de partager nos rêves et de construire un avenir 
+              où l’amour sera notre force et notre engagement, 
+              chaque jour renouvelé.
+            </p>
+
+            <p className="text-lg gras text-[#C66A4A]">
+              <br />Le 14 novembre 2026, nous écrirons ensemble une nouvelle 
+              page de notre histoire : celle d’un amour scellé par une promesse, 
+              porté par la foi et tourné vers l’éternité.
             </p>
 
             <p className="mt-8 font-serif text-xl italic text-[#9E4F38]">
-              Axel & Améline
+              Axel & Ameline ❤️
             </p>
           </div>
         </div>
@@ -534,7 +558,7 @@ export default function HomePage() {
             <div className="mx-auto mt-5 h-px w-16 bg-[#F8E9E2]" />
           </div>
 
-          {/* Citations Axel & Améline */}
+          {/* Citations Axel & Ameline */}
           <div className="mt-14 grid gap-8 md:grid-cols-2">
 
             {/* Citation Axel */}
@@ -558,7 +582,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Citation Améline */}
+            {/* Citation Ameline */}
             <div className="relative rounded-3xl bg-[#FFFDFC] px-7 py-9 text-center shadow-lg">
               <div className="absolute left-1/2 top-0 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#F8E9E2] text-xl text-[#C66A4A]">
                 “
@@ -571,7 +595,7 @@ export default function HomePage() {
               <div className="mx-auto mt-6 h-px w-10 bg-[#C66A4A]" />
 
               <p className="mt-4 text-sm font-medium uppercase tracking-[0.2em] text-[#C66A4A]">
-                Améline
+                Ameline
               </p>
 
               <p className="mt-1 text-xs text-[#928982]">
@@ -625,37 +649,37 @@ export default function HomePage() {
           <div className="mt-14 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">
             <GalleryImage
               src="/images/gallery-1.jpg"
-              alt="Axel et Améline"
+              alt="Axel et Ameline"
               className="aspect-[3/4]"
             />
 
             <GalleryImage
               src="/images/gallery-2.jpg"
-              alt="Axel et Améline"
+              alt="Axel et Ameline"
               className="aspect-[3/4]"
             />
 
             <GalleryImage
               src="/images/gallery-3.jpg"
-              alt="Axel et Améline"
+              alt="Axel et Ameline"
               className="aspect-[3/4]"
             />
 
             <GalleryImage
               src="/images/gallery-4.jpg"
-              alt="Axel et Améline"
+              alt="Axel et Ameline"
               className="aspect-[3/4]"
             />
 
             <GalleryImage
               src="/images/gallery-5.jpg"
-              alt="Axel et Améline"
+              alt="Axel et Ameline"
               className="aspect-[3/4]"
             />
 
             <GalleryImage
               src="/images/gallery-6.jpg"
-              alt="Axel et Améline"
+              alt="Axel et Ameline"
               className="aspect-[3/4]"
             />
           </div>
@@ -793,7 +817,7 @@ export default function HomePage() {
                 </p>
 
                 <h2 className="mt-2 font-serif text-2xl text-[#332824]">
-                  Un petit mot pour Axel & Améline
+                  Un petit mot pour Axel & Ameline
                 </h2>
               </div>
 
@@ -835,7 +859,7 @@ export default function HomePage() {
       ====================================================== */}
       <footer className="bg-[#FAF7F3] px-6 py-12 text-center">
         <p className="font-serif text-3xl">
-          Axel <span className="text-[#C66A4A]">&</span> Améline
+          Axel <span className="text-[#C66A4A]">&</span> Ameline
         </p>
 
         <p className="mt-3 text-xs uppercase tracking-[0.3em] text-[#9E4F38]">

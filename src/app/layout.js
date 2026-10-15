@@ -13,15 +13,15 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   metadataBase: new URL("https://mywedding-woad.vercel.app"),
-  title: "Axel & Améline | Notre mariage",
+  title: "Axel & Ameline | Notre mariage",
   description:
     "Nous nous marions le 14 novembre 2026. Retrouvez toutes les infos et confirmez votre présence.",
   openGraph: {
-    title: "Axel & Améline | Notre mariage",
+    title: "Axel & Ameline | Notre mariage",
     description:
       "Nous nous marions le 14 novembre 2026. Retrouvez toutes les infos et confirmez votre présence.",
     url: "/",
-    siteName: "Axel & Améline",
+    siteName: "Axel & Ameline",
     locale: "fr_FR",
     type: "website",
     images: [
@@ -29,7 +29,7 @@ export const metadata = {
         url: "/og-whatsapp.jpg",
         width: 1200,
         height: 630,
-        alt: "Axel et Améline",
+        alt: "Axel et Ameline",
       },
     ],
   },

@@ -211,7 +211,7 @@ const handleSubmit = async (e) => {
 
           <div className="relative z-10">
             <p className="mb-3 text-xs uppercase tracking-[0.3em] text-[#F1C5B4]">
-              Axel & Améline
+              Axel & Ameline
             </p>
 
             <h1 className="font-serif text-5xl md:text-7xl">
@@ -337,8 +337,8 @@ const handleSubmit = async (e) => {
                     >
                       <option value="">Sélectionnez</option>
                       <option value="Axel">Axel</option>
-                      <option value="Améline">Améline</option>
-                      <option value="Axel & Améline">Axel & Améline</option>
+                      <option value="Améline">Ameline</option>
+                      <option value="Axel & Améline">Axel & Ameline</option>
                     </select>
                   </div>
                 </div>
@@ -500,7 +500,7 @@ const handleSubmit = async (e) => {
       ====================================================== */}
       <footer className="border-t border-[#E8DAD2] bg-[#FAF7F3] px-6 py-6 text-center">
         <p className="font-serif text-2xl">
-          Axel <span className="text-[#C66A4A]">&</span> Améline
+          Axel <span className="text-[#C66A4A]">&</span> Ameline
         </p>
         <p className="mt-2 text-[10px] uppercase tracking-[0.25em] text-[#9E4F38]">
           14 Novembre 2026

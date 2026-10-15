@@ -5,11 +5,13 @@ import { QRCodeSVG } from "qrcode.react";
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
 
+
+
 export default function WeddingInvitationCard({
   guest,
   numberOfGuests = 0,
 }) {
-  const cardRef = useRef(null);
+  const exportRef = useRef(null);
   const [downloading, setDownloading] = useState(false);
 
   if (!guest) return null;
@@ -17,21 +19,18 @@ export default function WeddingInvitationCard({
   const siteUrl =
     typeof window !== "undefined"
       ? window.location.origin
-      : "https://mywedding.vercel.app";
+      : "https://mywedding-woad.vercel.app";
 
   const qrUrl = `${siteUrl}/check-in/${guest.invitation_code}`;
-
   const totalPeople = 1 + Number(numberOfGuests || 0);
 
-  const downloadCard = async () => {
-    if (!cardRef.current) return;
+  async function downloadCard() {
+    if (!exportRef.current || downloading) return;
 
     try {
       setDownloading(true);
 
-      const element = cardRef.current;
-
-      const dataUrl = await toPng(element, {
+      const dataUrl = await toPng(exportRef.current, {
         cacheBust: true,
         pixelRatio: 3,
         backgroundColor: "#FFFDFC",
@@ -40,120 +39,165 @@ export default function WeddingInvitationCard({
       const link = document.createElement("a");
       link.download = `Invitation-Axel-Ameline-${guest.invitation_code}.png`;
       link.href = dataUrl;
-
-      document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
     } catch (error) {
       console.error("Erreur téléchargement carte :", error);
-      alert("Impossible de télécharger la carte.");
+      alert("Impossible de télécharger la carte. Veuillez réessayer.");
     } finally {
       setDownloading(false);
     }
-  };
+  }
 
-  return (
-    <div className="w-full min-w-0">
-
-      {/* CARTE D'INVITATION */}
+  // Même contenu pour les deux rendus.
+  function InvitationDesign({ compact = false }) {
+    return (
       <div
-        ref={cardRef}
-        className="mx-auto w-full max-w-[300px] overflow-hidden rounded-2xl bg-[#FFFDFC] shadow-sm"
+        className={`overflow-hidden bg-[#FFFDFC] text-center ${
+          compact ? "w-full rounded-2xl" : "w-[600px] rounded-[2rem]"
+        }`}
       >
-        {/* EN-TÊTE */}
-        <div className="relative bg-[#C66A4A] px-4 py-5 text-center text-white">
-          <div className="absolute left-3 top-3 text-lg opacity-40">✦</div>
-          <div className="absolute right-3 top-3 text-lg opacity-40">✦</div>
-
-          <p className="text-[9px] uppercase tracking-[0.25em] text-[#F8E9E2]">
+        <div
+          className={`bg-[#C66A4A] text-white ${
+            compact ? "px-3 py-4" : "px-10 py-12"
+          }`}
+        >
+          <p
+            className={`uppercase tracking-[0.3em] text-[#F8E9E2] ${
+              compact ? "text-[8px]" : "text-xs"
+            }`}
+          >
             Invitation personnelle
           </p>
 
-          <h2 className="mt-2 font-serif text-2xl">
+          <h2
+            className={`font-serif ${
+              compact ? "mt-2 text-xl" : "mt-6 text-5xl"
+            }`}
+          >
             Axel <span className="text-[#F8E9E2]">&</span> Améline
           </h2>
 
-          <div className="mx-auto mt-3 h-px w-10 bg-[#F8E9E2]" />
-
-          <p className="mt-3 text-[9px] uppercase tracking-[0.2em] text-[#F8E9E2]">
+          <p
+            className={`uppercase tracking-[0.2em] text-[#F8E9E2] ${
+              compact ? "mt-2 text-[8px]" : "mt-5 text-sm"
+            }`}
+          >
             Notre grand jour
           </p>
 
-          <p className="mt-1 font-serif text-lg">
+          <p className={compact ? "mt-1 text-sm" : "mt-3 text-2xl"}>
             14 novembre 2026
           </p>
         </div>
 
-        {/* INFORMATIONS */}
-        <div className="px-4 py-4 text-center">
-          <p className="text-[9px] leading-4 text-[#928982]">
+        <div className={compact ? "px-3 py-4" : "px-10 py-10"}>
+          <p
+            className={`text-[#928982] ${
+              compact ? "text-[9px]" : "text-sm"
+            }`}
+          >
             Nous avons le plaisir de vous compter parmi nous
           </p>
 
-          <h3 className="mt-2 break-words font-serif text-xl text-[#332824]">
+          <h3
+            className={`break-words font-serif text-[#332824] ${
+              compact ? "mt-2 text-xl" : "mt-5 text-4xl"
+            }`}
+          >
             {guest.name}
           </h3>
 
-          <div className="mx-auto mt-2 h-px w-8 bg-[#D99072]" />
-
-          <p className="mt-2 text-xs text-[#75665F]">
-            {totalPeople === 1
-              ? "1 personne"
-              : `${totalPeople} personnes`}
+          <p
+            className={`text-[#75665F] ${
+              compact ? "mt-1 text-xs" : "mt-3 text-base"
+            }`}
+          >
+            {totalPeople} {totalPeople > 1 ? "personnes" : "personne"}
           </p>
 
-          {/* QR CODE */}
-          <div className="mx-auto mt-4 flex w-fit rounded-xl border border-[#E8DAD2] bg-white p-2">
+          <div
+            className={`mx-auto flex w-fit rounded-xl border border-[#E8DAD2] bg-white ${
+              compact ? "mt-3 p-2" : "mt-8 p-5"
+            }`}
+          >
             <QRCodeSVG
               value={qrUrl}
-              size={120}
+              size={compact ? 100 : 240}
               level="H"
               bgColor="#FFFFFF"
               fgColor="#332824"
             />
           </div>
 
-          <p className="mt-2 text-[9px] text-[#928982]">
+          <p
+            className={`text-[#928982] ${
+              compact ? "mt-2 text-[9px]" : "mt-4 text-sm"
+            }`}
+          >
             Présentez ce QR Code à l'accueil
           </p>
 
-          {/* CODE INVITATION */}
-          <div className="mt-3 rounded-xl bg-[#F8E9E2] px-3 py-2">
-            <p className="text-[8px] uppercase tracking-[0.2em] text-[#928982]">
-              Code invitation
+          <div
+            className={`rounded-xl bg-[#F8E9E2] ${
+              compact ? "mt-3 px-2 py-2" : "mt-6 px-6 py-5"
+            }`}
+          >
+            <p className={compact ? "text-[8px]" : "text-xs"}>
+              CODE INVITATION
             </p>
-
-            <p className="mt-1 font-mono text-base font-semibold tracking-[0.2em] text-[#9E4F38]">
+            <p
+              className={`break-all font-mono font-semibold tracking-widest text-[#9E4F38] ${
+                compact ? "mt-1 text-sm" : "mt-3 text-2xl"
+              }`}
+            >
               {guest.invitation_code}
             </p>
           </div>
 
-          <p className="mt-3 font-serif text-sm italic text-[#C66A4A]">
+          <p
+            className={`font-serif italic text-[#C66A4A] ${
+              compact ? "mt-3 text-sm" : "mt-7 text-xl"
+            }`}
+          >
             Avec tout notre amour
           </p>
-
-          <p className="mt-1 text-[9px] text-[#928982]">
+          <p className={compact ? "mt-1 text-[9px]" : "mt-2 text-sm"}>
             Axel & Améline
           </p>
         </div>
 
-        <div className="h-1.5 bg-[#C66A4A]" />
+        <div className={compact ? "h-1.5 bg-[#C66A4A]" : "h-3 bg-[#C66A4A]"} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4">
+      {/* RENDU ÉCRAN : compact */}
+      <div className="mx-auto w-full max-w-[300px]">
+        <InvitationDesign compact />
       </div>
 
-      {/* TÉLÉCHARGEMENT */}
-      <div className="mt-3 text-center">
+      {/* RENDU EXPORT : grand, caché visuellement mais présent dans le DOM */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed left-[-10000px] top-0"
+      >
+        <div ref={exportRef}>
+          <InvitationDesign />
+        </div>
+      </div>
+
+      <div className="mt-4 text-center">
         <button
           type="button"
           onClick={downloadCard}
           disabled={downloading}
-          className="inline-flex max-w-full items-center justify-center rounded-full bg-[#C66A4A] px-4 py-2.5 text-xs font-medium text-white transition hover:bg-[#9E4F38] disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-full bg-[#C66A4A] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#9E4F38] disabled:opacity-60"
         >
-          {downloading
-            ? "Préparation..."
-            : "⬇ Télécharger mon invitation"}
+          {downloading ? "Préparation..." : "⬇ Télécharger mon invitation"}
         </button>
-
-        <p className="mt-2 text-[10px] leading-4 text-[#928982]">
+        <p className="mt-2 text-xs text-[#928982]">
           Enregistrez votre invitation sur votre téléphone.
         </p>
       </div>

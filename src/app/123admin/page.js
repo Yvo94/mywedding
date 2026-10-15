@@ -29,7 +29,7 @@ export default function AdminPage() {
   const [whatsappMessage, setWhatsappMessage] = useState(
     `Bonjour {prenom} 👋
 
-  Nous sommes heureux de vous inviter au mariage d’Axel et Améline 💍
+  Nous sommes heureux de vous inviter au mariage d’Axel et Ameline 💍
 
   Nous serions ravis de vous compter parmi nous pour célébrer cette belle journée.
 
@@ -351,7 +351,7 @@ const pendingPercentage =
 
           <div>
             <p className="font-serif text-lg text-[#332824]">
-              Axel & Améline
+              Axel & Ameline
             </p>
             <p className="text-[10px] uppercase tracking-[0.18em] text-[#75665F]">
               Administration
@@ -405,7 +405,7 @@ const pendingPercentage =
             </div>
 
             <div>
-              <p className="font-serif text-xl">Axel & Améline</p>
+              <p className="font-serif text-xl">Axel & Ameline</p>
               <p className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-white/70">
                 Administration
               </p>
@@ -499,7 +499,7 @@ const pendingPercentage =
                 </p>
 
                 <h2 className="mt-1 font-serif text-3xl text-[#332824]">
-                  Bonjour Axel & Améline ♡
+                  Bonjour Axel & Ameline ♡
                 </h2>
               </section>
 
@@ -755,9 +755,9 @@ const pendingPercentage =
                   >
                     <option value="Tous">Tous les côtés</option>
                     <option value="Axel">Axel</option>
-                    <option value="Améline">Améline</option>
+                    <option value="Améline">Ameline</option>
                     <option value="Axel & Améline">
-                      Axel & Améline
+                      Axel & Ameline
                     </option>
                   </select>
                 </div>

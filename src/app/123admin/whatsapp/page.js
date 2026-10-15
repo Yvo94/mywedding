@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 const TEMPLATES = {
   invitation: `Bonjour {prenom} 👋
 
-Nous sommes heureux de vous inviter au mariage d’Axel et Améline 💍
+Nous sommes heureux de vous inviter au mariage d’Axel et Ameline 💍
 
 Nous serions ravis de vous compter parmi nous pour célébrer cette belle journée.
 
@@ -14,7 +14,7 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
 
   rappel: `Bonjour {prenom} 👋
 
-Le grand jour d’Axel et Améline approche ! 💍
+Le grand jour d’Axel et Ameline approche ! 💍
 
 Nous souhaitons savoir si vous pourrez être des nôtres. Merci de confirmer votre présence sur notre site.
 
@@ -22,7 +22,7 @@ Nous souhaitons savoir si vous pourrez être des nôtres. Merci de confirmer vot
 
   confirmation: `Bonjour {prenom} ❤️
 
-Merci d’avoir confirmé votre présence au mariage d’Axel et Améline.
+Merci d’avoir confirmé votre présence au mariage d’Axel et Ameline.
 
 Nous sommes heureux de partager ce moment spécial avec vous ! 💍`,
 };
@@ -193,7 +193,7 @@ export default function WhatsAppPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <header>
           <p className="text-sm text-[#A66C51]">
-            MARIAGE AXEL & AMÉLINE
+            MARIAGE AXEL & AMELINE
           </p>
           <h1 className="text-3xl font-bold text-[#332824]">
             Notifications WhatsApp
