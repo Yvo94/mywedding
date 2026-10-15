@@ -322,7 +322,7 @@ export default function HomePage() {
             UNE NOUVELLE AVENTURE À DEUX
           </p>
 
-          <h2 className="mt-5 font-serif text-3xl leading-tight md:text-6xl">
+          <h2 className="mt-5 font-serif text-3xl leading-tight md:text-6xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
             Deux cœurs, deux histoires,
             <br />
             un amour, une vie.
