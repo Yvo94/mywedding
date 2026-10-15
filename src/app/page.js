@@ -267,10 +267,7 @@ export default function HomePage() {
           <div className="mx-auto mt-7 h-px w-16 bg-[#C66A4A]" />
 
           <p className="mx-auto mt-6 max-w-md font-serif text-lg italic text-white/85 md:text-xl">
-            « Ce que Dieu a unis, que l'homme ne le sépare pas »
-          </p>
-          <p className="mx-auto max-w-md font-serif text-lg italic text-[#D99072] md:text-xl">
-            Matthieu 19,6
+            « L'amour est plus grand que tout »
           </p>
           
           <Link
@@ -374,7 +371,7 @@ export default function HomePage() {
               Notre histoire.
             </p>
 
-            <h2 className="mt-5 font-serif text-3xl md:text-6xl">
+            <h2 className="mt-5 font-title text-3xl md:text-6xl font-bold">
               Une rencontre, un amour,
               <br />
               une promesse pour la vie...
