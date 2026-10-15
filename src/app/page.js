@@ -339,11 +339,12 @@ export default function HomePage() {
             Aujourd’hui, 
             nous avons choisi d’unir nos chemins pour écrire ensemble 
             la plus belle histoire de notre vie.
-            <p className="text-lg gras text-[#C66A4A]">
+            
+          </p>
+          <p className="text-lg gras text-[#C66A4A]">
               <br />Nous serions heureux de vous avoir à nos côtés pour célébrer
               notre union.
             </p>
-          </p>
         </div>
       </section>
 
