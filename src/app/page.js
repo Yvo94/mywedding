@@ -468,7 +468,7 @@ export default function HomePage() {
 
         {/* =====================================================
           LE MENU
-      ====================================================== */}
+      ====================================================== 
       <section
         id="menu"
         className="bg-[#F1E5DE] px-6 py-24 sm:px-10 lg:px-20"
@@ -538,6 +538,118 @@ export default function HomePage() {
           </p>
         </div>
       </section>
+
+      */}
+        
+      {/* =====================================================
+          LE MENU
+      ====================================================== */}
+      <section
+        id="menu"
+        className="bg-[#F1E5DE] px-6 py-24 sm:px-10 lg:px-20"
+      >
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#C66A4A]">
+              Pour vous régaler
+            </p>
+
+            <h2 className="mt-3 font-serif text-4xl text-[#332824] sm:text-5xl">
+              Le menu du jour J
+            </h2>
+
+            <div className="mx-auto mt-5 h-px w-16 bg-[#C66A4A]" />
+
+            <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-[#75665F]">
+              Une célébration de saveurs et de partage, autour
+              de spécialités soigneusement choisies pour cette
+              journée exceptionnelle.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 md:grid-cols-2">
+            
+            <MenuCard
+              icon="🥗"
+              title="Les Entrées"
+              items={[
+                {
+                  name: "Macédoine de légumes frais",
+                  description: "Légumes de saison, mayonnaise légère.",
+                },
+                {
+                  name: "Salade composée",
+                  description: "Assortiment de crudités de saison.",
+                },
+              ]}
+            />
+
+            <MenuCard
+              icon="🍽️"
+              title="Les Plats de Résistance"
+              items={[
+                {
+                  name: "Poisson braisé à la flamme",
+                  description:
+                    "Poisson mariné et grillé, accompagné d’attiéké traditionnel.",
+                },
+                {
+                  name: "Tchep au poulet",
+                  description: "Riz parfumé aux légumes et poulet mijoté.",
+                },
+                {
+                  name: "Soupe du pêcheur aux saveurs marines",
+                  description:
+                    "Assortiment de fruits de mer et poisson, servi avec de l’attiéké rouge.",
+                },
+              ]}
+            />
+
+            <MenuCard
+              icon="🔥"
+              title="Les Accompagnements & Grillades"
+              items={[
+                {
+                  name: "Alloco doré à la banane plantain",
+                  description: "Tranches de banane plantain frites.",
+                },
+                {
+                  name: "Pommes de terre frites croustillantes",
+                  description: "Frites maison.",
+                },
+                {
+                  name: "Brochettes de viande grillée",
+                  description: "Viande marinée et grillée aux épices.",
+                },
+              ]}
+            />
+
+            <MenuCard
+              icon="🎂"
+              title="La Note Sucrée"
+              items={[
+                {
+                  name: "Gâteau de mariage des mariés",
+                  description: "Wedding cake",
+                },
+              ]}
+            />
+
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="font-serif text-lg italic leading-8 text-[#9E4F38]">
+              Que l’amour et le partage soient au cœur de cette
+              belle célébration.
+            </p>
+
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#C66A4A]">
+              Axel & Améline · 14 novembre 2026
+            </p>
+          </div>
+        </div>
+      </section>
+
 
       {/* =====================================================
       {/* =====================================================
@@ -970,7 +1082,7 @@ function GalleryImage({ src, alt, className }) {
   );
 }
 
-function MenuCard({ icon, title, items }) {
+/*function MenuCard({ icon, title, items }) {
   return (
     <div className="group rounded-3xl border border-[#E8DAD2] bg-white p-7 text-center shadow-[0_10px_40px_rgba(51,40,36,0.04)] transition hover:-translate-y-1 hover:shadow-[0_15px_45px_rgba(51,40,36,0.08)]">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F8E9E2] text-2xl">
@@ -995,7 +1107,43 @@ function MenuCard({ icon, title, items }) {
       </div>
     </div>
   );
+}*/
+
+function MenuCard({ icon, title, items }) {
+  return (
+    <div className="group rounded-3xl border border-[#E8DAD2] bg-white p-7 text-center shadow-[0_10px_40px_rgba(51,40,36,0.04)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_15px_45px_rgba(51,40,36,0.08)] sm:p-8">
+      {/* Icône */}
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F8E9E2] text-2xl transition duration-300 group-hover:scale-110">
+        {icon}
+      </div>
+
+      {/* Titre de la catégorie */}
+      <h3 className="mt-5 font-serif text-2xl text-[#332824]">
+        {title}
+      </h3>
+
+      <div className="mx-auto my-5 h-px w-10 bg-[#D99072]" />
+
+      {/* Liste des plats */}
+      <div className="space-y-6">
+        {items.map((item, index) => (
+          <div key={index}>
+            <h4 className="text-sm font-semibold leading-6 text-[#9E4F38]">
+              {typeof item === "string" ? item : item.name}
+            </h4>
+
+            {typeof item !== "string" && item.description && (
+              <p className="mt-1 text-sm leading-6 text-[#75665F]">
+                {item.description}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
+
 
 function GuestMessage({ name, message, onClick }) {
   return (
