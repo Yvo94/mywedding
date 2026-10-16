@@ -221,6 +221,24 @@ export default function RSVPPage() {
 
         {/* FORMULAIRE À DROITE */}
         <section className="rounded-2xl border border-[#E8D8CE] bg-white p-5 shadow-md md:p-6">
+          
+          <div className="mb-6 rounded-xl border border-[#E8D8CE] bg-[#FAF7F3] p-4 text-center">
+            <p className="font-medium text-[#332824]">
+              Vous avez déjà votre code d’invitation ?
+            </p>
+
+            <p className="mt-1 text-sm text-[#75665F]">
+              Retrouvez votre carte et téléchargez-la à nouveau.
+            </p>
+
+            <Link
+              href="/reimprimer-invitation"
+              className="mt-3 inline-flex items-center justify-center rounded-full bg-[#332824] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#9E4F38]"
+            >
+              Réimprimer mon invitation
+            </Link>
+          </div>
+
           {!submitted ? (
             <>
               {/* INTRODUCTION */}
