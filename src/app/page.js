@@ -371,7 +371,7 @@ export default function HomePage() {
               Notre histoire.
             </p>
 
-            <h2 className="mt-5 font-title text-3xl md:text-6xl font-bold">
+            <h2 className="mt-5 font-title text-3xl md:text-6xl font-bold" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
               Une rencontre, un amour,
               <br />
               une promesse pour la vie...
@@ -421,7 +421,7 @@ export default function HomePage() {
               Le grand jour
             </p>
 
-            <h2 className="mt-5 font-serif text-4xl md:text-6xl">
+            <h2 className="mt-5 font-serif text-4xl md:text-6xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
               Rendez-vous le 14 novembre 2026
             </h2>
 
@@ -463,81 +463,6 @@ export default function HomePage() {
         </div>
       </section>
 
-        {/* =====================================================
-          LE MENU
-      ====================================================== 
-      <section
-        id="menu"
-        className="bg-[#F1E5DE] px-6 py-24 sm:px-10 lg:px-20"
-      >
-        <div className="mx-auto max-w-5xl">
-          <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#C66A4A]">
-              Pour vous régaler
-            </p>
-
-            <h2 className="mt-3 font-serif text-4xl text-[#332824] sm:text-5xl">
-              Le menu du jour J
-            </h2>
-
-            <div className="mx-auto mt-5 h-px w-16 bg-[#C66A4A]" />
-
-            <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-[#75665F]">
-              Parce que cette journée se célèbre aussi autour d'une belle table,
-              nous avons imaginé un menu à partager avec vous.
-            </p>
-          </div>
-
-          <div className="mt-14 grid gap-6 md:grid-cols-2">
-            <MenuCard
-              icon="🥂"
-              title="Cocktail"
-              items={[
-                "Assortiment de bouchées",
-                "Cocktails & boissons fraîches",
-                "Jus de fruits naturels",
-              ]}
-            />
-
-            <MenuCard
-              icon="🍽️"
-              title="Entrée"
-              items={[
-                "Salade composée au thon",
-                "Cocktail de crevettes",
-                "Salade de poulet",
-              ]}
-            />
-
-            <MenuCard
-              icon="🍲"
-              title="Plat principal"
-              items={[
-                "Kedjenou de poisson aux feuilles accompagné de riz blanc",
-                "Igname bouillie Kponan & pâte",
-                "Tchèp & Attiéké",
-              ]}
-            />
-
-            <MenuCard
-              icon="🍰"
-              title="Dessert"
-              items={[
-                "Douceurs pour toute la table",
-                "Pièce sucrée pour clôturer le repas.",
-                "Fruits frais",
-              ]}
-            />
-          </div>
-
-          <p className="mt-10 text-center font-serif text-lg italic text-[#9E4F38]">
-            Un repas partagé, des souvenirs pour toujours.
-          </p>
-        </div>
-      </section>
-
-      */}
-        
       {/* =====================================================
           LE MENU
       ====================================================== */}
@@ -551,7 +476,7 @@ export default function HomePage() {
               Pour vous régaler
             </p>
 
-            <h2 className="mt-3 font-serif text-4xl text-[#332824] sm:text-5xl">
+            <h2 className="mt-3 font-serif text-4xl text-[#332824] sm:text-5xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
               Le menu du jour J
             </h2>
 
@@ -661,7 +586,7 @@ export default function HomePage() {
               La parole qui nous unit
             </p>
 
-            <h2 className="mt-3 font-serif text-4xl text-white sm:text-5xl">
+            <h2 className="mt-3 font-serif text-4xl text-white sm:text-5xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
               Quelques mots pour notre union
             </h2>
 
@@ -722,7 +647,7 @@ export default function HomePage() {
               ♡
             </div>
 
-            <blockquote className="font-serif text-2xl leading-10 text-white sm:text-3xl">
+            <blockquote className="font-serif text-2xl leading-10 text-white sm:text-3xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
               « L’amour est patient, l’amour est serviable…
                il espère tout, il endure tout. »
             </blockquote>
@@ -751,7 +676,7 @@ export default function HomePage() {
               Quelques souvenirs
             </p>
 
-            <h2 className="mt-5 font-serif text-4xl md:text-6xl">
+            <h2 className="mt-5 font-serif text-4xl md:text-6xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
               Notre galerie
             </h2>
           </div>
@@ -805,7 +730,7 @@ export default function HomePage() {
             Nous espérons vous compter parmi nous
           </p>
 
-          <h2 className="mt-5 font-serif text-4xl md:text-6xl">
+          <h2 className="mt-5 font-serif text-4xl md:text-6xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
             Serez-vous des nôtres ?
           </h2>
 
@@ -837,7 +762,7 @@ export default function HomePage() {
               Vos mots nous touchent
             </p>
 
-            <h2 className="mt-3 font-serif text-4xl text-[#332824] sm:text-5xl">
+            <h2 className="mt-3 font-serif text-4xl text-[#332824] sm:text-5xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
               Vos mots doux
             </h2>
 

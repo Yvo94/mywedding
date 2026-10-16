@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -11,7 +12,7 @@ export default function RSVPPage() {
     relation: "",
     side: "",
     whatsapp: "",
-    guests: "1",
+    guests: "0",
     attendance: "",
     message: "",
   });
@@ -28,95 +29,72 @@ export default function RSVPPage() {
       [name]: value,
     }));
   }
+  function normalizePhone(phone) {
+    let digits = phone.replace(/\D/g, "");
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  setSubmitting(true);
-
-  try {
-    // =====================================================
-    // 1. CHERCHER L'INVITÉ
-    // =====================================================
-
-    const { data: existingGuest, error: guestSearchError } =
-      await supabase
-        .from("guests")
-        .select("*")
-        .eq("name", formData.name.trim())
-        .eq("side", formData.side)
-        .maybeSingle();
-
-    if (guestSearchError) {
-      throw guestSearchError;
+    // Retirer l'indicatif ivoirien pour uniformiser
+    if (digits.startsWith("225") && digits.length === 13) {
+      digits = digits.slice(3);
     }
 
-    let guest = existingGuest;
+    return digits;
+  }
 
-    // =====================================================
-    // 2. CRÉER L'INVITÉ SI NÉCESSAIRE
-    // =====================================================
+  async function handleSubmit(e) {
+    e.preventDefault();
 
-    if (!guest) {
-      let invitationCode = generateInvitationCode();
+    const normalizedPhone = normalizePhone(formData.whatsapp);
 
-      // Vérifier que le code n'existe pas
-      let codeExists = true;
+    if (submitting) return;
 
-      while (codeExists) {
-        const { data } = await supabase
-          .from("guests")
-          .select("id")
-          .eq("invitation_code", invitationCode)
-          .maybeSingle();
+    setSubmitting(true);
 
-        codeExists = !!data;
+    try {
+      // ================================================
+      // 1. ENREGISTRER L'INVITÉ, LE RSVP ET LE CHECK-IN
+      //    DANS UNE SEULE TRANSACTION POSTGRESQL
+      // ================================================
 
-        if (codeExists) {
-          invitationCode = generateInvitationCode();
+      const { data, error } = await supabase.rpc(
+        "submit_wedding_rsvp",
+        {
+          p_name: formData.name.trim(),
+          p_relation: formData.relation,
+          p_side: formData.side,
+          p_whatsapp: normalizedPhone, //formData.whatsapp.trim(),
+          p_attendance: formData.attendance,
+          p_number_of_guests:
+            formData.attendance === "Présent"
+              ? Number(formData.guests)
+              : 0,
         }
-      }
+      );
 
-      const { data: newGuest, error: createGuestError } =
-        await supabase
-          .from("guests")
-          .insert({
-            name: formData.name.trim(),
-            relation: formData.relation,
-            side: formData.side,
-            whatsapp: formData.whatsapp,
-            invitation_code: invitationCode,
-          })
-          .select()
-          .single();
-
-      if (createGuestError) {
-        throw createGuestError;
-      }
-
-      guest = newGuest;
-    }
-
-    // =====================================================
-    // 3. ENREGISTRER / MODIFIER LE RSVP
-    // =====================================================
-
-    const rsvpData = {
-      guest_id: guest.id,
-      attendance: formData.attendance,
-      number_of_guests: Number(formData.guests),
-      //message: formData.message,
-    };
-
-    const { error: rsvpError } = await supabase
-        .from("rsvps")
-        .upsert(rsvpData, {
-          onConflict: "guest_id",
+      if (error) {
+        console.error("Erreur RPC RSVP :", {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
         });
 
-      if (rsvpError) {
-        throw rsvpError;
+        throw error;
       }
+
+      if (!data?.guest || !data?.rsvp) {
+        throw new Error(
+          "La réponse du serveur est incomplète."
+        );
+      }
+
+      const guest = data.guest;
+
+      // ================================================
+      // 2. ENREGISTRER LE MESSAGE DU LIVRE D'OR
+      //    SÉPARÉMENT DU RSVP
+      // ================================================
+
+      let messageSaved = true;
 
       if (formData.message.trim() !== "") {
         const { error: messageError } = await supabase
@@ -128,54 +106,58 @@ const handleSubmit = async (e) => {
           });
 
         if (messageError) {
-          throw messageError;
+          messageSaved = false;
+
+          console.error(
+            "Le RSVP est enregistré, mais le message du livre d'or a échoué :",
+            {
+              message: messageError.message,
+              code: messageError.code,
+              details: messageError.details,
+              hint: messageError.hint,
+            }
+          );
         }
       }
 
-    // =====================================================
-    // 4. CRÉER L'ENTRÉE CHECK-IN
-    // =====================================================
+      // ================================================
+      // 3. AFFICHER LA CARTE D'INVITATION
+      // ================================================
 
-    await supabase
-      .from("check_ins")
-      .upsert(
-        {
-          guest_id: guest.id,
-          checked_in: false,
-        },
-        {
-          onConflict: "guest_id",
-        }
-      );
+      setGuestData(guest);
+      setSubmitted(true);
 
-    // =====================================================
-    // 5. STOCKER L'INVITATION
-    // =====================================================
+      if (!messageSaved) {
+        alert(
+          "Votre réponse est enregistrée, mais votre petit mot n'a pas pu être sauvegardé. Vous pourrez le transmettre aux mariés séparément."
+        );
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement RSVP :", {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+      });
 
-    setGuestData(guest);
-
-    // =====================================================
-    // 6. AFFICHER LA CARTE
-    // =====================================================
-
-    setSubmitted(true);
-
-  } catch (error) {
-    console.error("Erreur RSVP :", error);
-
-    alert(
-      "Une erreur est survenue lors de l'enregistrement."
-    );
-  } finally {
-    setSubmitting(false);
+      if (error?.code === "23505") {
+        alert(
+          "Ce numéro WhatsApp est déjà associé à une inscription. Un seul enregistrement par numéro est autorisé."
+        );
+      } else {
+        alert(
+          error?.message
+            ? `Impossible d'enregistrer votre réponse : ${error.message}`
+            : "Une erreur est survenue lors de l'enregistrement. Veuillez réessayer."
+        );
+      }
+    } finally {
+      setSubmitting(false);
+    }
   }
-};
 
   return (
     <main className="min-h-screen bg-[#FAF7F3] text-[#332824]">
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
       {/* HEADER */}
       <header className="relative z-20 bg-[#332824]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
@@ -195,16 +177,13 @@ const handleSubmit = async (e) => {
         </div>
       </header>
 
-      
-      {/* =====================================================
-          HERO + FORMULAIRE RSVP
-      ====================================================== */}
+      {/* HERO + FORMULAIRE RSVP */}
       <div className="mx-auto grid max-w-6xl grid-cols-1 items-stretch gap-5 px-4 py-6 md:grid-cols-2 md:gap-6 md:px-6 md:py-8">
-        
+
         {/* HERO À GAUCHE */}
         <section className="relative flex min-h-[360px] h-full flex-col items-center justify-center overflow-hidden rounded-[2rem] bg-[#332824] px-5 py-6 text-center text-white shadow-xl md:min-h-0">
-
           <div className="absolute left-6 top-8 h-20 w-20 rounded-full border border-[#D99072]/30" />
+
           <div className="absolute bottom-8 right-6 h-28 w-28 rounded-full border border-[#D99072]/20" />
 
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(198,106,74,0.20),_transparent_60%)]" />
@@ -229,9 +208,11 @@ const handleSubmit = async (e) => {
               14 Novembre 2026
             </p>
 
-            <p className="mt-10 font-serif text-lg gras text-white/70">
-              « L’amour est patient, l’amour est serviable… il espère tout, il endure tout. »
+            <p className="mt-10 font-serif text-lg text-white/70">
+              « L’amour est patient, l’amour est serviable…
+              il espère tout, il endure tout. »
             </p>
+
             <p className="mt-10 font-serif text-lg italic text-[#D99172]">
               1 Corinthiens 13, 4-7
             </p>
@@ -240,10 +221,9 @@ const handleSubmit = async (e) => {
 
         {/* FORMULAIRE À DROITE */}
         <section className="rounded-2xl border border-[#E8D8CE] bg-white p-5 shadow-md md:p-6">
-
           {!submitted ? (
             <>
-              {/* INTRODUCTION COMPACTE */}
+              {/* INTRODUCTION */}
               <div className="mb-6 text-center">
                 <p className="text-[10px] uppercase tracking-[0.3em] text-[#C66A4A]">
                   Votre présence
@@ -262,11 +242,13 @@ const handleSubmit = async (e) => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-
                 {/* NOM + WHATSAPP */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
+                    <label
+                      htmlFor="name"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
                       Nom et prénoms *
                     </label>
 
@@ -283,14 +265,18 @@ const handleSubmit = async (e) => {
                   </div>
 
                   <div>
-                    <label htmlFor="whatsapp" className="mb-1.5 block text-sm font-medium">
-                      Numéro WhatsApp
+                    <label
+                      htmlFor="whatsapp"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      Numéro WhatsApp *
                     </label>
 
                     <input
                       id="whatsapp"
                       name="whatsapp"
                       type="tel"
+                      required
                       value={formData.whatsapp}
                       onChange={handleChange}
                       placeholder="05 44 36 03 78"
@@ -302,7 +288,10 @@ const handleSubmit = async (e) => {
                 {/* LIEN + CÔTÉ */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="relation" className="mb-1.5 block text-sm font-medium">
+                    <label
+                      htmlFor="relation"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
                       Lien avec les mariés *
                     </label>
 
@@ -318,12 +307,17 @@ const handleSubmit = async (e) => {
                       <option value="parent">Parent</option>
                       <option value="ami">Ami(e)</option>
                       <option value="collegue">Collègue</option>
-                      <option value="communaute_religieuse">Communauté religieuse</option>
+                      <option value="communaute_religieuse">
+                        Communauté religieuse
+                      </option>
                     </select>
                   </div>
 
                   <div>
-                    <label htmlFor="side" className="mb-1.5 block text-sm font-medium">
+                    <label
+                      htmlFor="side"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
                       Côté *
                     </label>
 
@@ -338,7 +332,9 @@ const handleSubmit = async (e) => {
                       <option value="">Sélectionnez</option>
                       <option value="Axel">Axel</option>
                       <option value="Améline">Ameline</option>
-                      <option value="Axel & Améline">Axel & Ameline</option>
+                      <option value="Axel & Améline">
+                        Axel & Ameline
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -393,7 +389,10 @@ const handleSubmit = async (e) => {
                 {/* ACCOMPAGNANTS */}
                 {formData.attendance === "Présent" && (
                   <div>
-                    <label htmlFor="guests" className="mb-1.5 block text-sm font-medium">
+                    <label
+                      htmlFor="guests"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
                       Nombre d'accompagnants
                     </label>
 
@@ -413,7 +412,10 @@ const handleSubmit = async (e) => {
 
                 {/* MESSAGE */}
                 <div>
-                  <label htmlFor="message" className="mb-1.5 block text-sm font-medium">
+                  <label
+                    htmlFor="message"
+                    className="mb-1.5 block text-sm font-medium"
+                  >
                     Un petit mot pour les mariés
                   </label>
 
@@ -434,18 +436,20 @@ const handleSubmit = async (e) => {
                   disabled={submitting}
                   className="w-full rounded-full bg-[#C66A4A] px-5 py-3 text-sm font-medium tracking-wide text-white shadow-lg shadow-[#C66A4A]/15 transition hover:bg-[#9E4F38] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {submitting ? "Enregistrement..." : "Confirmer ma réponse"}
+                  {submitting
+                    ? "Enregistrement..."
+                    : "Confirmer ma réponse"}
                 </button>
 
                 <p className="text-center text-xs leading-5 text-[#928982]">
-                  Vos informations seront utilisées uniquement dans le cadre de notre mariage.
+                  Vos informations seront utilisées uniquement dans le
+                  cadre de notre mariage.
                 </p>
               </form>
             </>
           ) : (
-            /* CONFIRMATION DANS LE CADRE DE DROITE */
+            /* CONFIRMATION */
             <div className="flex h-full flex-col items-center justify-center py-8 text-center">
-
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#F8E9E2] font-serif text-2xl text-[#C66A4A]">
                 ♥
               </div>
@@ -462,11 +466,14 @@ const handleSubmit = async (e) => {
 
               <p className="mt-5 text-sm leading-6 text-[#75665F]">
                 Merci beaucoup{" "}
-                <strong className="text-[#9E4F38]">{formData.name}</strong>.
-                {" "}Nous vous remercions d'avoir répondu à notre invitation.
+                <strong className="text-[#9E4F38]">
+                  {guestData?.name || formData.name}
+                </strong>
+                . Nous vous remercions d'avoir répondu à notre invitation.
               </p>
 
-              {guestData && (
+              
+              {guestData && formData.attendance === "Présent" && (
                 <div className="mx-auto mt-3 w-full min-w-0 max-w-[320px]">
                   <WeddingInvitationCard
                     guest={guestData}
@@ -474,6 +481,7 @@ const handleSubmit = async (e) => {
                   />
                 </div>
               )}
+
 
               <button
                 type="button"
@@ -491,38 +499,23 @@ const handleSubmit = async (e) => {
               </Link>
             </div>
           )}
-
         </section>
       </div>
 
-      {/* =====================================================
-          FOOTER
-      ====================================================== */}
+      {/* FOOTER */}
       <footer className="border-t border-[#E8DAD2] bg-[#FAF7F3] px-6 py-6 text-center">
         <p className="font-serif text-2xl">
           Axel <span className="text-[#C66A4A]">&</span> Ameline
         </p>
+
         <p className="mt-2 text-[10px] uppercase tracking-[0.25em] text-[#9E4F38]">
           14 Novembre 2026
         </p>
+
         <p className="mt-3 text-xs text-[#928982]">
           L'amour est plus grand que tout
         </p>
       </footer>
     </main>
   );
-}
-
-function generateInvitationCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-  let code = "";
-
-  for (let i = 0; i < 5; i++) {
-    code += chars.charAt(
-      Math.floor(Math.random() * chars.length)
-    );
-  }
-
-  return code;
 }

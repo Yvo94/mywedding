@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: "▦" },
@@ -13,6 +12,9 @@ const menuItems = [
   { id: "event", label: "Événement", icon: "♡" },
   { id: "settings", label: "Paramètres", icon: "⚙" },
 ];
+
+const isPresent = (status) =>
+  ["Présent", "Présente"].includes((status || "").trim());
 
 export default function AdminPage() {
   const [guests, setGuests] = useState([]);
@@ -26,16 +28,17 @@ export default function AdminPage() {
   const [whatsappSelected, setWhatsappSelected] = useState([]);
   const [whatsappSearch, setWhatsappSearch] = useState("");
   const [whatsappFilter, setWhatsappFilter] = useState("Tous");
+  const [whatsappOpened, setWhatsappOpened] = useState([]);
+
   const [whatsappMessage, setWhatsappMessage] = useState(
     `Bonjour {prenom} 👋
 
-  Nous sommes heureux de vous inviter au mariage d’Axel et Ameline 💍
+Nous sommes heureux de vous inviter au mariage d’Axel et Ameline 💍
 
-  Nous serions ravis de vous compter parmi nous pour célébrer cette belle journée.
+Nous serions ravis de vous compter parmi nous pour célébrer cette belle journée.
 
-  À très bientôt ! ❤️`
+À très bientôt ! ❤️`
   );
-  const [whatsappOpened, setWhatsappOpened] = useState([]);
 
   useEffect(() => {
     loadDashboard();
@@ -51,15 +54,22 @@ export default function AdminPage() {
           *,
           rsvps (
             attendance,
-            number_of_guests
+            number_of_guests,
+            message,
+            created_at
           )
         `)
         .order("created_at", { ascending: false });
 
       if (guestsError) {
-        console.error("Erreur lors du chargement des invités :", guestsError);
+        console.error("Erreur chargement invités :", guestsError);
+        setGuests([]);
       } else {
-        setGuests(guestsData || []);
+        setGuests(guestsData ?? []);
+        console.log(
+          "Invités reçus de Supabase :",
+          guestsData?.length ?? 0
+        );
       }
 
       const { data: messagesData, error: messagesError } =
@@ -76,126 +86,86 @@ export default function AdminPage() {
           .order("created_at", { ascending: false });
 
       if (messagesError) {
-        console.error("Erreur lors du chargement des messages :", messagesError);
+        console.error("Erreur chargement messages :", messagesError);
+        setMessages([]);
       } else {
-        setMessages(messagesData || []);
+        setMessages(messagesData ?? []);
       }
     } catch (error) {
-      console.error("Erreur dashboard :", error);
+      console.error("Erreur chargement dashboard :", error);
+      setGuests([]);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
   }
 
-  
-  const filteredGuests = useMemo(() => {
-  return guests.filter((guest) => {
-    const name = guest.name || "";
-    const whatsapp = guest.whatsapp || "";
-    const side = guest.side || "";
-    const status = guest.rsvps?.[0]?.attendance || "En attente";
+  // Récupérer le RSVP associé à un invité
+  const getRsvp = (guest) => {
+    if (Array.isArray(guest.rsvps)) {
+      return guest.rsvps[0] || null;
+    }
 
-    const searchValue = search.toLowerCase();
+    return guest.rsvps || null;
+  };
 
-    const matchesSearch =
-      name.toLowerCase().includes(searchValue) ||
-      whatsapp.toLowerCase().includes(searchValue);
+  // Statut réel venant de la table rsvps
+  const getAttendance = (guest) => {
+    return getRsvp(guest)?.attendance?.trim() || "En attente";
+  };
 
-    const matchesStatus =
-      filterStatus === "Tous" || status === filterStatus;
+  // Nombre d'accompagnants déclaré dans le RSVP
+  const getCompanions = (guest) => {
+    const rsvp = getRsvp(guest);
 
-    const matchesSide =
-      filterSide === "Tous" || side === filterSide;
+    if (!rsvp || !isPresent(rsvp.attendance)) {
+      return 0;
+    }
 
-    return matchesSearch && matchesStatus && matchesSide;
-  });
-}, [guests, search, filterStatus, filterSide]);
+    return Math.max(0, Number(rsvp.number_of_guests) || 0);
+  };
 
-  const handlePublishMessage = async (
-      messageId,
-      published
-    ) => {
-      try {
-        const { error } = await supabase
-          .from("guestbook_messages")
-          .update({
-            is_published: published,
-          })
-          .eq("id", messageId);
+  // Statistiques générales
+  const totalGuests = guests.length;
 
-        if (error) {
-          throw error;
-        }
+  const confirmedGuests = guests.filter((guest) =>
+    isPresent(getAttendance(guest))
+  ).length;
 
-        // Mise à jour immédiate de l'interface
-        setMessages((currentMessages) =>
-          currentMessages.map((message) =>
-            message.id === messageId
-              ? {
-                  ...message,
-                  is_published: published,
-                }
-              : message
-          )
-        );
+  const absentGuests = guests.filter(
+    (guest) => getAttendance(guest) === "Absent"
+  ).length;
 
-      } catch (error) {
-        console.error(
-          "Erreur publication message :",
-          error
-        );
+  const pendingGuests = guests.filter(
+    (guest) => getAttendance(guest) === "En attente"
+  ).length;
 
-        alert(
-          "Impossible de modifier le statut du message."
-        );
-      }
-    };
+  // Total des accompagnants des invités ayant confirmé leur présence
+  const totalCompanions = guests.reduce(
+    (total, guest) => total + getCompanions(guest),
+    0
+  );
 
-  
-const getAttendance = (guest) => {
-  const rsvp = Array.isArray(guest.rsvps)
-    ? guest.rsvps[0]
-    : guest.rsvps;
+  // Total attendu = invités confirmés + accompagnants confirmés
+  const totalPeopleExpected = confirmedGuests + totalCompanions;
 
-  return rsvp?.attendance?.trim() || "En attente";
-};
+  const confirmedPercentage =
+    totalGuests > 0
+      ? Math.round((confirmedGuests / totalGuests) * 100)
+      : 0;
 
-const totalGuests = guests.length;
+  const absentPercentage =
+    totalGuests > 0
+      ? Math.round((absentGuests / totalGuests) * 100)
+      : 0;
 
-const confirmedGuests = guests.filter((guest) => {
-  const status = getAttendance(guest);
-  return status === "Présent" || status === "Présente";
-}).length;
-
-const absentGuests = guests.filter(
-  (guest) => getAttendance(guest) === "Absent"
-).length;
-
-const pendingGuests = guests.filter(
-  (guest) => getAttendance(guest) === "En attente"
-).length;
-
-
-  // Pourcentage de chaque statut
-const confirmedPercentage =
-  totalGuests > 0
-    ? Math.round((confirmedGuests / totalGuests) * 100)
-    : 0;
-
-const absentPercentage =
-  totalGuests > 0
-    ? Math.round((absentGuests / totalGuests) * 100)
-    : 0;
-
-const pendingPercentage =
-  totalGuests > 0
-    ? Math.round((pendingGuests / totalGuests) * 100)
-    : 0;
-
+  const pendingPercentage =
+    totalGuests > 0
+      ? Math.round((pendingGuests / totalGuests) * 100)
+      : 0;
 
   const confirmationRate = confirmedPercentage;
 
-  // Répartition selon le côté
   const axelGuests = guests.filter(
     (guest) => guest.side === "Axel"
   ).length;
@@ -212,14 +182,20 @@ const pendingPercentage =
     {
       label: "Invités",
       value: totalGuests,
-      description: "Total des invités",
+      description: "Total des invités enregistrés",
       icon: "♙",
     },
     {
       label: "Présents",
       value: confirmedGuests,
-      description: "Confirmations reçues",
+      description: "Invités ayant confirmé",
       icon: "✓",
+    },
+    {
+      label: "Total personnes attendues",
+      value: totalPeopleExpected,
+      description: `${confirmedGuests} invités + ${totalCompanions} accompagnants`,
+      icon: "👥",
     },
     {
       label: "Absents",
@@ -235,18 +211,57 @@ const pendingPercentage =
     },
   ];
 
-  const getWhatsAppStatus = (guest) => {
-    const rsvp = Array.isArray(guest.rsvps)
-      ? guest.rsvps[0]
-      : guest.rsvps;
+  // Filtrer les invités dans la page Invités
+  const filteredGuests = useMemo(() => {
+    return guests.filter((guest) => {
+      const name = guest.name || "";
+      const whatsapp = guest.whatsapp || "";
+      const side = guest.side || "";
+      const status = getAttendance(guest);
+      const searchValue = search.toLowerCase();
 
-    return rsvp?.attendance?.trim() || "En attente";
+      const matchesSearch =
+        name.toLowerCase().includes(searchValue) ||
+        whatsapp.toLowerCase().includes(searchValue);
+
+      const matchesStatus =
+        filterStatus === "Tous" || status === filterStatus;
+
+      const matchesSide =
+        filterSide === "Tous" || side === filterSide;
+
+      return matchesSearch && matchesStatus && matchesSide;
+    });
+  }, [guests, search, filterStatus, filterSide]);
+
+  // Publication des messages
+  const handlePublishMessage = async (messageId, published) => {
+    try {
+      const { error } = await supabase
+        .from("guestbook_messages")
+        .update({ is_published: published })
+        .eq("id", messageId);
+
+      if (error) throw error;
+
+      setMessages((currentMessages) =>
+        currentMessages.map((message) =>
+          message.id === messageId
+            ? { ...message, is_published: published }
+            : message
+        )
+      );
+    } catch (error) {
+      console.error("Erreur publication message :", error);
+      alert("Impossible de modifier le statut du message.");
+    }
   };
 
+  // Filtrage des destinataires WhatsApp
   const whatsappFilteredGuests = guests.filter((guest) => {
     const name = (guest.name || "").toLowerCase();
     const phone = guest.whatsapp || "";
-    const status = getWhatsAppStatus(guest);
+    const status = getAttendance(guest);
 
     const matchesSearch =
       name.includes(whatsappSearch.toLowerCase()) ||
@@ -254,8 +269,7 @@ const pendingPercentage =
 
     const matchesStatus =
       whatsappFilter === "Tous" ||
-      (whatsappFilter === "Présents" &&
-        ["Présent", "Présente"].includes(status)) ||
+      (whatsappFilter === "Présents" && isPresent(status)) ||
       (whatsappFilter === "Absents" && status === "Absent") ||
       (whatsappFilter === "En attente" && status === "En attente");
 
@@ -294,12 +308,22 @@ const pendingPercentage =
       return;
     }
 
+    const firstName = (guest.name || "cher invité")
+      .trim()
+      .split(/\s+/)[0];
+
     const message = whatsappMessage.replace(
       /\{prenom\}/gi,
-      (guest.name || "cher invité").trim().split(/\s+/)[0]
+      firstName
     );
 
-    const url = `https://wa.me/225${phone}?text=${encodeURIComponent(message)}`;
+    // Si les numéros sont déjà enregistrés au format international,
+    // adapte cette ligne pour éviter d'ajouter le préfixe une seconde fois.
+    const internationalPhone = phone.startsWith("225")
+      ? phone
+      : `225${phone}`;
+
+    const url = `https://wa.me/${internationalPhone}?text=${encodeURIComponent(message)}`;
 
     window.open(url, "_blank", "noopener,noreferrer");
 
@@ -318,7 +342,9 @@ const pendingPercentage =
     );
 
     if (!nextGuest) {
-      alert("Tous les invités sélectionnés ont déjà été ouverts dans WhatsApp.");
+      alert(
+        "Tous les invités sélectionnés ont déjà été ouverts dans WhatsApp."
+      );
       return;
     }
 
@@ -326,29 +352,26 @@ const pendingPercentage =
   };
 
   if (loading) {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-[#FAF7F3]">
-      <div className="text-center">
-        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#F1E5DE] border-t-[#C66A4A]" />
-
-        <p className="mt-4 text-sm text-[#75665F]">
-          Chargement du dashboard...
-        </p>
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#FAF7F3]">
+        <div className="text-center">
+          <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#F1E5DE] border-t-[#C66A4A]" />
+          <p className="mt-4 text-sm text-[#75665F]">
+            Chargement du dashboard...
+          </p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FAF7F3] text-[#332824]">
-      {/* =========================
-          MOBILE HEADER
-      ========================= */}
+      {/* En-tête mobile */}
       <header className="fixed left-0 right-0 top-0 z-50 flex h-[72px] items-center justify-between border-b border-[#E8DAD2] bg-white px-5 lg:hidden">
         <Link href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C66A4A] text-sm font-semibold text-white">
             A&A
           </div>
-
           <div>
             <p className="font-serif text-lg text-[#332824]">
               Axel & Ameline
@@ -362,14 +385,13 @@ const pendingPercentage =
         <button
           onClick={() => setMobileMenu(!mobileMenu)}
           className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#E8DAD2] text-xl text-[#9E4F38]"
+          aria-label="Ouvrir le menu"
         >
           {mobileMenu ? "×" : "☰"}
         </button>
       </header>
 
-      {/* =========================
-          MOBILE MENU
-      ========================= */}
+      {/* Menu mobile */}
       {mobileMenu && (
         <div className="fixed inset-x-0 top-[72px] z-40 border-b border-[#E8DAD2] bg-white p-4 shadow-lg lg:hidden">
           <nav className="space-y-2">
@@ -394,16 +416,13 @@ const pendingPercentage =
         </div>
       )}
 
-      {/* =========================
-          SIDEBAR
-      ========================= */}
+      {/* Barre latérale */}
       <aside className="fixed bottom-0 left-0 top-0 hidden w-[250px] flex-col bg-[#C66A4A] text-white lg:flex">
         <div className="border-b border-white/20 px-7 py-7">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#C66A4A]">
               A&A
             </div>
-
             <div>
               <p className="font-serif text-xl">Axel & Ameline</p>
               <p className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-white/70">
@@ -417,7 +436,6 @@ const pendingPercentage =
           <p className="mb-3 px-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/60">
             Gestion
           </p>
-
           <div className="space-y-1.5">
             {menuItems.map((item) => (
               <button
@@ -432,7 +450,6 @@ const pendingPercentage =
                 <span className="flex w-6 justify-center text-lg">
                   {item.icon}
                 </span>
-
                 <span>{item.label}</span>
               </button>
             ))}
@@ -450,17 +467,13 @@ const pendingPercentage =
         </div>
       </aside>
 
-      {/* =========================
-          MAIN
-      ========================= */}
+      {/* Contenu principal */}
       <main className="pt-[72px] lg:ml-[250px] lg:pt-0">
-        {/* HEADER */}
         <header className="hidden h-[82px] items-center justify-between border-b border-[#E8DAD2] bg-white px-8 lg:flex">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-[#75665F]">
               Administration
             </p>
-
             <h1 className="mt-1 font-serif text-2xl text-[#332824]">
               {activeMenu === "dashboard" && "Tableau de bord"}
               {activeMenu === "guests" && "Gestion des invités"}
@@ -478,52 +491,45 @@ const pendingPercentage =
             >
               Voir le site
             </Link>
-
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F8E9E2] font-semibold text-[#9E4F38]">
               A
             </div>
           </div>
         </header>
 
-        {/* CONTENT */}
         <div className="px-5 py-6 sm:px-8 lg:px-10 lg:py-8">
-          {/* =========================
-              DASHBOARD
-          ========================= */}
+          {/* DASHBOARD */}
           {activeMenu === "dashboard" && (
             <div className="space-y-8">
-              {/* Welcome */}
               <section>
                 <p className="text-sm text-[#75665F]">
                   Vue d'ensemble de votre mariage
                 </p>
-
                 <h2 className="mt-1 font-serif text-3xl text-[#332824]">
                   Bonjour Axel & Ameline ♡
                 </h2>
               </section>
 
-              {/* Stats */}
-              <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {/* Statistiques : cinq cartes */}
+              <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
                 {stats.map((stat) => (
                   <div
                     key={stat.label}
                     className="rounded-2xl border border-[#E8DAD2] bg-white p-5 shadow-[0_8px_30px_rgba(51,40,36,0.04)]"
                   >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-sm text-[#75665F]">{stat.label}</p>
-
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm text-[#75665F]">
+                          {stat.label}
+                        </p>
                         <p className="mt-2 font-serif text-4xl text-[#332824]">
                           {stat.value}
                         </p>
                       </div>
-
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#F8E9E2] text-xl text-[#C66A4A]">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F8E9E2] text-xl text-[#C66A4A]">
                         {stat.icon}
                       </div>
                     </div>
-
                     <p className="mt-4 text-xs text-[#928982]">
                       {stat.description}
                     </p>
@@ -531,38 +537,32 @@ const pendingPercentage =
                 ))}
               </section>
 
-              {/* Attendance overview */}
+              {/* Confirmation et répartition */}
               <section className="grid gap-6 xl:grid-cols-2">
                 <div className="rounded-2xl border border-[#E8DAD2] bg-white p-6">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-4">
                     <div>
                       <h3 className="font-serif text-xl text-[#332824]">
                         Confirmation des invités
                       </h3>
-
                       <p className="mt-1 text-sm text-[#75665F]">
                         État des réponses
                       </p>
                     </div>
-
                     <div className="text-right">
                       <p className="font-serif text-2xl text-[#C66A4A]">
                         {confirmedGuests} / {totalGuests}
                       </p>
-
                       <p className="text-xs text-[#928982]">
                         réponses positives
                       </p>
                     </div>
                   </div>
 
-                  {/* Progression */}
                   <div className="mt-7 h-3 overflow-hidden rounded-full bg-[#F1E5DE]">
                     <div
                       className="h-full rounded-full bg-[#C66A4A] transition-all duration-500"
-                      style={{
-                        width: `${confirmationRate}%`,
-                      }}
+                      style={{ width: `${confirmationRate}%` }}
                     />
                   </div>
 
@@ -571,27 +571,22 @@ const pendingPercentage =
                       <p className="text-xl font-semibold text-[#9E4F38]">
                         {confirmedPercentage}%
                       </p>
-
                       <p className="mt-1 text-xs text-[#75665F]">
                         Présents
                       </p>
                     </div>
-
                     <div className="rounded-xl bg-[#FAF7F3] p-3">
                       <p className="text-xl font-semibold text-[#75665F]">
                         {absentPercentage}%
                       </p>
-
                       <p className="mt-1 text-xs text-[#75665F]">
                         Absents
                       </p>
                     </div>
-
                     <div className="rounded-xl bg-[#FAF7F3] p-3">
                       <p className="text-xl font-semibold text-[#75665F]">
                         {pendingPercentage}%
                       </p>
-
                       <p className="mt-1 text-xs text-[#75665F]">
                         En attente
                       </p>
@@ -599,29 +594,24 @@ const pendingPercentage =
                   </div>
                 </div>
 
-                {/* Side distribution */}
                 <div className="rounded-2xl border border-[#E8DAD2] bg-white p-6">
                   <h3 className="font-serif text-xl text-[#332824]">
                     Répartition des invités
                   </h3>
-
                   <p className="mt-1 text-sm text-[#75665F]">
                     Selon le côté des mariés
                   </p>
-
                   <div className="mt-7 space-y-5">
                     <DistributionBar
                       label="Axel"
                       value={axelGuests}
                       total={totalGuests}
                     />
-
                     <DistributionBar
                       label="Améline"
                       value={amelineGuests}
                       total={totalGuests}
                     />
-
                     <DistributionBar
                       label="Axel & Améline"
                       value={bothGuests}
@@ -631,19 +621,17 @@ const pendingPercentage =
                 </div>
               </section>
 
-              {/* Recent guests */}
+              {/* Derniers invités */}
               <section className="rounded-2xl border border-[#E8DAD2] bg-white">
                 <div className="flex flex-col gap-3 border-b border-[#E8DAD2] p-6 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h3 className="font-serif text-xl text-[#332824]">
                       Derniers invités
                     </h3>
-
                     <p className="mt-1 text-sm text-[#75665F]">
                       Les dernières confirmations reçues
                     </p>
                   </div>
-
                   <button
                     onClick={() => setActiveMenu("guests")}
                     className="text-sm font-medium text-[#C66A4A] hover:text-[#9E4F38]"
@@ -659,11 +647,10 @@ const pendingPercentage =
                         <th className="px-6 py-4 font-medium">Invité</th>
                         <th className="px-6 py-4 font-medium">Lien</th>
                         <th className="px-6 py-4 font-medium">Côté</th>
-                        <th className="px-6 py-4 font-medium">Personnes</th>
+                        <th className="px-6 py-4 font-medium">Accompagnants</th>
                         <th className="px-6 py-4 font-medium">Statut</th>
                       </tr>
                     </thead>
-
                     <tbody>
                       {guests.map((guest) => (
                         <tr
@@ -674,29 +661,34 @@ const pendingPercentage =
                             <p className="font-medium text-[#332824]">
                               {guest.name}
                             </p>
-
                             <p className="mt-1 text-xs text-[#928982]">
                               {guest.whatsapp}
                             </p>
                           </td>
-
                           <td className="px-6 py-4 text-sm text-[#75665F]">
                             {guest.relation}
                           </td>
-
                           <td className="px-6 py-4 text-sm text-[#75665F]">
                             {guest.side}
                           </td>
-
                           <td className="px-6 py-4 text-sm text-[#75665F]">
-                            {guest.guests}
+                            {getCompanions(guest)}
                           </td>
-
                           <td className="px-6 py-4">
-                            <StatusBadge status={guest.status} />
+                            <StatusBadge status={getAttendance(guest)} />
                           </td>
                         </tr>
                       ))}
+                      {guests.length === 0 && (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className="px-6 py-10 text-center text-sm text-[#928982]"
+                          >
+                            Aucun invité enregistré.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -704,9 +696,7 @@ const pendingPercentage =
             </div>
           )}
 
-          {/* =========================
-              GUESTS
-          ========================= */}
+          {/* INVITÉS */}
           {activeMenu === "guests" && (
             <div className="space-y-6">
               <section className="rounded-2xl border border-[#E8DAD2] bg-white p-6">
@@ -715,18 +705,21 @@ const pendingPercentage =
                     <h2 className="font-serif text-2xl text-[#332824]">
                       Liste des invités
                     </h2>
-
                     <p className="mt-1 text-sm text-[#75665F]">
                       Gérez les invités et leurs confirmations RSVP.
                     </p>
                   </div>
-
-                  <button className="rounded-xl bg-[#C66A4A] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#9E4F38]">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      alert("La fonction d'ajout d'invité reste à développer.")
+                    }
+                    className="rounded-xl bg-[#C66A4A] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#9E4F38]"
+                  >
                     + Ajouter un invité
                   </button>
                 </div>
 
-                {/* Filters */}
                 <div className="mt-6 grid gap-3 md:grid-cols-3">
                   <input
                     type="text"
@@ -755,10 +748,8 @@ const pendingPercentage =
                   >
                     <option value="Tous">Tous les côtés</option>
                     <option value="Axel">Axel</option>
-                    <option value="Améline">Ameline</option>
-                    <option value="Axel & Améline">
-                      Axel & Ameline
-                    </option>
+                    <option value="Améline">Améline</option>
+                    <option value="Axel & Améline">Axel & Améline</option>
                   </select>
                 </div>
               </section>
@@ -771,12 +762,11 @@ const pendingPercentage =
                         <th className="px-6 py-4 font-medium">Invité</th>
                         <th className="px-6 py-4 font-medium">Lien</th>
                         <th className="px-6 py-4 font-medium">Côté</th>
-                        <th className="px-6 py-4 font-medium">Personnes</th>
+                        <th className="px-6 py-4 font-medium">Accompagnants</th>
                         <th className="px-6 py-4 font-medium">Statut</th>
                         <th className="px-6 py-4 font-medium">Action</th>
                       </tr>
                     </thead>
-
                     <tbody>
                       {filteredGuests.map((guest) => (
                         <tr
@@ -787,40 +777,41 @@ const pendingPercentage =
                             <p className="font-medium text-[#332824]">
                               {guest.name}
                             </p>
-
                             <p className="mt-1 text-xs text-[#928982]">
                               {guest.whatsapp}
                             </p>
                           </td>
-
                           <td className="px-6 py-5 text-sm text-[#75665F]">
                             {guest.relation}
                           </td>
-
                           <td className="px-6 py-5 text-sm text-[#75665F]">
                             {guest.side}
                           </td>
-
                           <td className="px-6 py-5 text-sm text-[#75665F]">
-                            {guest.guests}
+                            {getCompanions(guest)}
                           </td>
-
                           <td className="px-6 py-5">
-                            <StatusBadge status={guest.status} />
+                            <StatusBadge status={getAttendance(guest)} />
                           </td>
-
                           <td className="px-6 py-5">
-                            <button className="text-sm font-medium text-[#C66A4A] hover:text-[#9E4F38]">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                alert(
+                                  `Invité : ${guest.name}\nStatut : ${getAttendance(guest)}\nAccompagnants : ${getCompanions(guest)}`
+                                )
+                              }
+                              className="text-sm font-medium text-[#C66A4A] hover:text-[#9E4F38]"
+                            >
                               Détails
                             </button>
                           </td>
                         </tr>
                       ))}
-
                       {filteredGuests.length === 0 && (
                         <tr>
                           <td
-                            colSpan="6"
+                            colSpan={6}
                             className="px-6 py-12 text-center text-sm text-[#928982]"
                           >
                             Aucun invité trouvé.
@@ -833,13 +824,10 @@ const pendingPercentage =
               </section>
             </div>
           )}
-          
-          {/* =========================
-              WHATSAPP
-          ========================= */}
+
+          {/* WHATSAPP */}
           {activeMenu === "whatsapp" && (
             <div className="space-y-6">
-
               <section>
                 <h2 className="font-serif text-3xl text-[#332824]">
                   Notifications WhatsApp
@@ -849,7 +837,6 @@ const pendingPercentage =
                 </p>
               </section>
 
-              {/* STATISTIQUES */}
               <section className="grid gap-4 sm:grid-cols-3">
                 {[
                   { label: "Total invités", value: guests.length },
@@ -875,8 +862,6 @@ const pendingPercentage =
               </section>
 
               <section className="grid gap-6 xl:grid-cols-2">
-
-                {/* LISTE DES INVITÉS */}
                 <div className="rounded-2xl border border-[#E8DAD2] bg-white p-6">
                   <h3 className="font-serif text-xl text-[#332824]">
                     1. Choisir les destinataires
@@ -911,7 +896,7 @@ const pendingPercentage =
 
                   <div className="mt-4 max-h-[480px] space-y-2 overflow-y-auto">
                     {whatsappFilteredGuests.map((guest) => {
-                      const status = getWhatsAppStatus(guest);
+                      const status = getAttendance(guest);
                       const selected = whatsappSelected.includes(guest.id);
 
                       return (
@@ -929,7 +914,6 @@ const pendingPercentage =
                             onChange={() => toggleWhatsAppGuest(guest.id)}
                             className="h-4 w-4 accent-[#C66A4A]"
                           />
-
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-medium text-[#332824]">
                               {guest.name}
@@ -941,7 +925,6 @@ const pendingPercentage =
                               {status}
                             </p>
                           </div>
-
                           {whatsappOpened.includes(guest.id) && (
                             <span className="text-xs text-green-700">
                               Ouvert
@@ -959,12 +942,10 @@ const pendingPercentage =
                   </div>
                 </div>
 
-                {/* PRÉPARATION DU MESSAGE */}
                 <div className="rounded-2xl border border-[#E8DAD2] bg-white p-6">
                   <h3 className="font-serif text-xl text-[#332824]">
                     2. Préparer le message
                   </h3>
-
                   <p className="mt-2 text-sm text-[#75665F]">
                     Utilisez {"{prenom}"} pour personnaliser le message
                     automatiquement.
@@ -989,7 +970,9 @@ const pendingPercentage =
                           guests.find((guest) =>
                             whatsappSelected.includes(guest.id)
                           )?.name || "cher invité"
-                        ).trim().split(/\s+/)[0]
+                        )
+                          .trim()
+                          .split(/\s+/)[0]
                       )}
                     </p>
                   </div>
@@ -1021,156 +1004,84 @@ const pendingPercentage =
                   <p className="mt-4 text-xs leading-5 text-[#928982]">
                     Chaque clic ouvre une conversation WhatsApp avec un
                     message prérempli. L'envoi reste manuel. Le statut
-                    « Ouvert » signifie uniquement que tu as demandé
-                    l'ouverture de la conversation, pas que le message
-                    a été envoyé.
+                    « Ouvert » ne signifie pas que le message a été envoyé.
                   </p>
                 </div>
               </section>
             </div>
           )}
 
-          {/* =========================
-              MESSAGES
-          ========================= */}
+          {/* MESSAGES */}
           {activeMenu === "messages" && (
             <div className="space-y-6">
-
-              {/* TITRE */}
               <section>
-                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-                  <div>
-                    <h2 className="font-serif text-3xl text-[#332824]">
-                      Messages des invités
-                    </h2>
-
-                    <p className="mt-2 text-sm text-[#75665F]">
-                      Retrouvez ici les petits mots laissés par vos invités
-                      et choisissez ceux qui seront affichés sur le site.
-                    </p>
-                  </div>
-                </div>
+                <h2 className="font-serif text-3xl text-[#332824]">
+                  Messages des invités
+                </h2>
+                <p className="mt-2 text-sm text-[#75665F]">
+                  Retrouvez les petits mots laissés par vos invités et
+                  choisissez ceux qui seront affichés sur le site.
+                </p>
               </section>
 
-              {/* STATISTIQUES */}
               <div className="grid gap-4 sm:grid-cols-3">
-
-                {/* TOTAL */}
-                <div className="rounded-2xl border border-[#E8DAD2] bg-white p-5">
-                  <p className="text-xs uppercase tracking-[0.15em] text-[#928982]">
-                    Total
-                  </p>
-
-                  <p className="mt-2 font-serif text-3xl text-[#332824]">
-                    {messages.length}
-                  </p>
-
-                  <p className="mt-1 text-xs text-[#75665F]">
-                    message{messages.length > 1 ? "s" : ""}
-                  </p>
-                </div>
-
-                {/* EN ATTENTE */}
-                <div className="rounded-2xl border border-[#E8DAD2] bg-white p-5">
-                  <p className="text-xs uppercase tracking-[0.15em] text-[#928982]">
-                    En attente
-                  </p>
-
-                  <p className="mt-2 font-serif text-3xl text-[#C66A4A]">
-                    {
-                      messages.filter(
-                        (message) => !message.is_published
-                      ).length
-                    }
-                  </p>
-
-                  <p className="mt-1 text-xs text-[#75665F]">
-                    à valider
-                  </p>
-                </div>
-
-                {/* PUBLIÉS */}
-                <div className="rounded-2xl border border-[#E8DAD2] bg-white p-5">
-                  <p className="text-xs uppercase tracking-[0.15em] text-[#928982]">
-                    Publiés
-                  </p>
-
-                  <p className="mt-2 font-serif text-3xl text-green-700">
-                    {
-                      messages.filter(
-                        (message) => message.is_published
-                      ).length
-                    }
-                  </p>
-
-                  <p className="mt-1 text-xs text-[#75665F]">
-                    visibles sur le site
-                  </p>
-                </div>
-
+                <MessageStat
+                  label="Total"
+                  value={messages.length}
+                  description={`message${messages.length > 1 ? "s" : ""}`}
+                />
+                <MessageStat
+                  label="En attente"
+                  value={messages.filter((m) => !m.is_published).length}
+                  description="à valider"
+                  accent
+                />
+                <MessageStat
+                  label="Publiés"
+                  value={messages.filter((m) => m.is_published).length}
+                  description="visibles sur le site"
+                  success
+                />
               </div>
 
-              {/* LISTE DES MESSAGES */}
               {messages.length === 0 ? (
-
                 <div className="rounded-2xl border border-[#E8DAD2] bg-white p-10 text-center">
-
                   <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F8E9E2] text-2xl text-[#C66A4A]">
                     💌
                   </div>
-
                   <h3 className="mt-5 font-serif text-xl text-[#332824]">
                     Aucun message
                   </h3>
-
                   <p className="mt-2 text-sm text-[#75665F]">
                     Les messages laissés par vos invités apparaîtront ici.
                   </p>
-
                 </div>
-
               ) : (
-
                 <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-
                   {messages.map((message) => {
-
                     const guestName =
-                      message.guests?.name?.trim() ||
-                      "Un invité";
+                      message.guests?.name?.trim() || "Un invité";
 
                     return (
                       <article
                         key={message.id}
                         className="rounded-2xl border border-[#E8DAD2] bg-white p-6 shadow-sm transition hover:shadow-md"
                       >
-
-                        {/* HEADER */}
                         <div className="flex items-start justify-between gap-3">
-
                           <div className="flex items-center gap-3">
-
-                            {/* AVATAR */}
                             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F8E9E2] font-semibold text-[#9E4F38]">
-                              {guestName
-                                .charAt(0)
-                                .toUpperCase()}
+                              {guestName.charAt(0).toUpperCase()}
                             </div>
-
-                            {/* NOM */}
                             <div>
                               <h3 className="font-medium text-[#332824]">
                                 {guestName}
                               </h3>
-
                               <p className="mt-0.5 text-xs text-[#928982]">
                                 Message pour les mariés
                               </p>
                             </div>
-
                           </div>
 
-                          {/* STATUT */}
                           <span
                             className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium ${
                               message.is_published
@@ -1182,87 +1093,62 @@ const pendingPercentage =
                               ? "✓ Publié"
                               : "En attente"}
                           </span>
-
                         </div>
 
-                        {/* MESSAGE */}
                         <div className="mt-5 rounded-xl bg-[#FAF7F3] p-5">
-
                           <p className="text-sm leading-7 text-[#75665F]">
                             « {message.message || "Aucun message"} »
                           </p>
-
                         </div>
 
-                        {/* DATE */}
                         <p className="mt-4 text-xs text-[#928982]">
                           {message.created_at
-                            ? new Date(
-                                message.created_at
-                              ).toLocaleDateString("fr-FR", {
-                                day: "2-digit",
-                                month: "long",
-                                year: "numeric",
-                              })
+                            ? new Date(message.created_at).toLocaleDateString(
+                                "fr-FR",
+                                {
+                                  day: "2-digit",
+                                  month: "long",
+                                  year: "numeric",
+                                }
+                              )
                             : ""}
                         </p>
 
-                        {/* ACTION */}
                         <div className="mt-5">
-
-                          {!message.is_published ? (
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handlePublishMessage(
-                                  message.id,
-                                  true
-                                )
-                              }
-                              className="w-full rounded-full bg-[#C66A4A] px-5 py-3 text-xs font-medium text-white transition hover:bg-[#9E4F38]"
-                            >
-                              ✓ Publier le message
-                            </button>
-
-                          ) : (
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handlePublishMessage(
-                                  message.id,
-                                  false
-                                )
-                              }
-                              className="w-full rounded-full border border-[#DED3CC] bg-white px-5 py-3 text-xs font-medium text-[#75665F] transition hover:border-[#C66A4A] hover:text-[#C66A4A]"
-                            >
-                              Masquer le message
-                            </button>
-
-                          )}
-
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handlePublishMessage(
+                                message.id,
+                                !message.is_published
+                              )
+                            }
+                            className={`w-full rounded-full px-5 py-3 text-xs font-medium transition ${
+                              message.is_published
+                                ? "border border-[#DED3CC] bg-white text-[#75665F] hover:border-[#C66A4A] hover:text-[#C66A4A]"
+                                : "bg-[#C66A4A] text-white hover:bg-[#9E4F38]"
+                            }`}
+                          >
+                            {message.is_published
+                              ? "Masquer le message"
+                              : "✓ Publier le message"}
+                          </button>
                         </div>
-
                       </article>
                     );
                   })}
-
                 </div>
               )}
-
             </div>
           )}
-          {/* =========================
-              EVENT
-          ========================= */}
+
+          {/* ÉVÉNEMENT */}
           {activeMenu === "event" && (
             <div className="space-y-6">
               <section>
                 <h2 className="font-serif text-3xl text-[#332824]">
                   Informations du mariage
                 </h2>
-
                 <p className="mt-2 text-sm text-[#75665F]">
                   Les informations principales de votre grand jour.
                 </p>
@@ -1274,19 +1160,16 @@ const pendingPercentage =
                   value="Axel & Améline"
                   description="Les futurs mariés"
                 />
-
                 <InfoCard
                   title="Date"
                   value="14 Novembre 2026"
                   description="Date du mariage"
                 />
-
                 <InfoCard
                   title="Cérémonie"
                   value="Mairie du Plateau"
                   description="Horaire : À définir"
                 />
-
                 <InfoCard
                   title="Réception"
                   value="À définir"
@@ -1298,7 +1181,6 @@ const pendingPercentage =
                 <p className="text-xs uppercase tracking-[0.2em] text-white/70">
                   Notre citation
                 </p>
-
                 <p className="mt-4 font-serif text-3xl">
                   “L'amour est plus grand que tout”
                 </p>
@@ -1306,16 +1188,13 @@ const pendingPercentage =
             </div>
           )}
 
-          {/* =========================
-              SETTINGS
-          ========================= */}
+          {/* PARAMÈTRES */}
           {activeMenu === "settings" && (
             <div className="max-w-3xl space-y-6">
               <section>
                 <h2 className="font-serif text-3xl text-[#332824]">
                   Paramètres
                 </h2>
-
                 <p className="mt-2 text-sm text-[#75665F]">
                   Configurez les informations de votre invitation.
                 </p>
@@ -1325,23 +1204,13 @@ const pendingPercentage =
                 <h3 className="font-serif text-xl text-[#332824]">
                   Informations générales
                 </h3>
-
                 <div className="mt-6 space-y-5">
-                  <SettingRow
-                    label="Nom du marié"
-                    value="Axel"
-                  />
-
-                  <SettingRow
-                    label="Nom de la mariée"
-                    value="Améline"
-                  />
-
+                  <SettingRow label="Nom du marié" value="Axel" />
+                  <SettingRow label="Nom de la mariée" value="Améline" />
                   <SettingRow
                     label="Date du mariage"
                     value="14 Novembre 2026"
                   />
-
                   <SettingRow
                     label="Couleur principale"
                     value="Terracotta"
@@ -1356,9 +1225,7 @@ const pendingPercentage =
   );
 }
 
-/* =========================
-   COMPONENTS
-========================= */
+/* COMPOSANTS */
 
 function StatusBadge({ status }) {
   const styles = {
@@ -1380,7 +1247,8 @@ function StatusBadge({ status }) {
 }
 
 function DistributionBar({ label, value, total }) {
-  const percentage = Math.round((value / total) * 100);
+  const percentage =
+    total > 0 ? Math.round((value / total) * 100) : 0;
 
   return (
     <div>
@@ -1388,12 +1256,10 @@ function DistributionBar({ label, value, total }) {
         <span className="text-sm font-medium text-[#332824]">
           {label}
         </span>
-
         <span className="text-xs text-[#75665F]">
           {value} invités
         </span>
       </div>
-
       <div className="h-2 overflow-hidden rounded-full bg-[#F1E5DE]">
         <div
           className="h-full rounded-full bg-[#C66A4A]"
@@ -1410,14 +1276,8 @@ function InfoCard({ title, value, description }) {
       <p className="text-xs uppercase tracking-[0.15em] text-[#75665F]">
         {title}
       </p>
-
-      <p className="mt-3 font-serif text-2xl text-[#332824]">
-        {value}
-      </p>
-
-      <p className="mt-2 text-sm text-[#928982]">
-        {description}
-      </p>
+      <p className="mt-3 font-serif text-2xl text-[#332824]">{value}</p>
+      <p className="mt-2 text-sm text-[#928982]">{description}</p>
     </div>
   );
 }
@@ -1426,45 +1286,25 @@ function SettingRow({ label, value }) {
   return (
     <div className="flex flex-col gap-2 border-b border-[#F1E5DE] pb-5 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
       <span className="text-sm text-[#75665F]">{label}</span>
-
       <span className="font-medium text-[#332824]">{value}</span>
     </div>
   );
 }
 
-const handlePublishMessage = async (messageId, published) => {
-  try {
-    const { error } = await supabase
-      .from("guestbook_messages")
-      .update({
-        is_published: published,
-      })
-      .eq("id", messageId);
+function MessageStat({ label, value, description, accent, success }) {
+  const valueClass = success
+    ? "text-green-700"
+    : accent
+      ? "text-[#C66A4A]"
+      : "text-[#332824]";
 
-    if (error) {
-      throw error;
-    }
-
-    // Mettre à jour immédiatement l'interface
-    setMessages((currentMessages) =>
-      currentMessages.map((message) =>
-        message.id === messageId
-          ? {
-              ...message,
-              is_published: published,
-            }
-          : message
-      )
-    );
-
-  } catch (error) {
-    console.error(
-      "Erreur lors de la modification du statut du message :",
-      error
-    );
-
-    alert(
-      "Impossible de modifier le statut du message."
-    );
-  }
-};
+  return (
+    <div className="rounded-2xl border border-[#E8DAD2] bg-white p-5">
+      <p className="text-xs uppercase tracking-[0.15em] text-[#928982]">
+        {label}
+      </p>
+      <p className={`mt-2 font-serif text-3xl ${valueClass}`}>{value}</p>
+      <p className="mt-1 text-xs text-[#75665F]">{description}</p>
+    </div>
+  );
+}
