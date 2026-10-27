@@ -431,35 +431,117 @@ export default function HomePage() {
             </p>
           </div>
 
+          
           {/* PROGRAMME */}
           <div className="mt-14 grid gap-6 md:grid-cols-3">
 
-            <EventCard
-              number="01"
-              title="Mariage civil"
-              time="12h00"
-              location="Mairie du Plateau"
-            />
+            {/* MARIAGE CIVIL */}
+            <div className="flex flex-col">
+              <div className="flex-1">
+                <EventCard
+                  number="01"
+                  title="Mariage civil"
+                  time="12h00"
+                  location="Mairie du Plateau"
+                />
+              </div>
 
-            <EventCard
-              number="02"
-              title="Bénédiction nuptiale"
-              time="14h00"
-              location={
-                <>
-                  Paroisse Saint Matthieu Cité Verte
-                </>
-              }
-            />
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Mairie+du+Plateau%2C+Avenue+Chardy%2C+Abidjan%2C+C%C3%B4te+d%27Ivoire"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-[#C66A4A] px-5 py-3 text-sm font-medium text-[#9E4F38] transition hover:bg-[#C66A4A] hover:text-white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                Voir la localisation
+              </a>
+            </div>
 
-            <EventCard
-              number="03"
-              title="Réception"
-              time="16h00"
-              location="Espace Événementiel HORIZON"
-            />
+            {/* BÉNÉDICTION NUPTIALE */}
+            <div className="flex flex-col">
+              <div className="flex-1">
+                <EventCard
+                  number="02"
+                  title="Bénédiction nuptiale"
+                  time="14h00"
+                  location="Paroisse Saint Matthieu Cité Verte"
+                />
+              </div>
+
+              <a
+                href="https://www.google.com/maps/place/Paroisse+Saint+Matthieu/data=!4m7!3m6!1s0xfc1c1a9105252fd:0xbed79cc2e9c5974e!8m2!3d5.331656!4d-4.1070087!16s%2Fg%2F11xg72hjh!19sChIJ_VJSEKnBwQ8RTpfF6cKc174?authuser=0&hl=fr&g_ep=EgoyMDI2MTAyMC4wIJJjKgBIAVAD&rclk=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-[#C66A4A] px-5 py-3 text-sm font-medium text-[#9E4F38] transition hover:bg-[#C66A4A] hover:text-white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                Voir la localisation
+              </a>
+            </div>
+
+            {/* RÉCEPTION */}
+            <div className="flex flex-col">
+              <div className="flex-1">
+                <EventCard
+                  number="03"
+                  title="Réception"
+                  time="16h00"
+                  location="Espace Événementiel HORIZON"
+                />
+              </div>
+
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Espace+Evenementiel+HORIZON%2C+Abidjan%2C+Cote+d%27Ivoire"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-[#C66A4A] px-5 py-3 text-sm font-medium text-[#9E4F38] transition hover:bg-[#C66A4A] hover:text-white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                Voir la localisation
+              </a>
+            </div>
 
           </div>
+
         </div>
       </section>
 
