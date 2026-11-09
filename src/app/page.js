@@ -575,7 +575,7 @@ export default function HomePage() {
             
             <MenuCard
               icon="🥗"
-              title="Les Entrées"
+              title="LES ENTREES"
               items={[
                 {
                   name: "Macédoine de légumes frais",
@@ -583,19 +583,19 @@ export default function HomePage() {
                 },
                 {
                   name: "Salade composée",
-                  description: "Assortiment de crudités de saison.",
+                  description: "Assortiment de crudités fraiches et croquantes.",
                 },
               ]}
             />
 
             <MenuCard
               icon="🍽️"
-              title="Les Plats de Résistance"
+              title="LES PLATS DE RESISTANCE"
               items={[
                 {
-                  name: "Poisson braisé à la flamme",
+                  name: "Poisson braisé",
                   description:
-                    "Poisson mariné et grillé, accompagné d’attiéké traditionnel.",
+                    "Poisson mariné et grillé à la perfection, accompagné de ses condiments.",
                 },
                 {
                   name: "Tchep au poulet",
@@ -606,35 +606,45 @@ export default function HomePage() {
                   description:
                     "Assortiment de fruits de mer et poisson, servi avec de l’attiéké rouge.",
                 },
+                {
+                  name: "Biékosseur et son écrasé de bananes plantains et maniocs",
+                  description:
+                    "Sauce traditionnelle ivoirienne aux saveurs authentiques accompagnée de bananes plantains et maniocs pilés.",
+                },
+                {
+                  name: "Poulet flambé aux notes aromatiques",
+                  description:
+                    "Poulet mariné aux épices et aromates, grillé puis flambé pour révéler toute sa richesse gustative.",
+                },
               ]}
             />
 
             <MenuCard
               icon="🔥"
-              title="Les Accompagnements & Grillades"
+              title="LES ACCOMPAGNEMENTS"
               items={[
                 {
-                  name: "Alloco doré à la banane plantain",
-                  description: "Tranches de banane plantain frites.",
+                  name: "Alloco doré",
+                  description: "Délicieuses tranches de banane plantain mûre, frites et dorées à souhait.",
+                },
+                {
+                  name: "Attiéké",
+                  description: "Semoule de manioc finement granulée, moelleuse et savoureuse.",
                 },
                 {
                   name: "Pommes de terre frites croustillantes",
-                  description: "Frites maison.",
-                },
-                {
-                  name: "Brochettes de viande grillée",
-                  description: "Viande marinée et grillée aux épices.",
+                  description: "Pommes de terre fraîchement découpées et frites.",
                 },
               ]}
             />
 
             <MenuCard
               icon="🎂"
-              title="La Note Sucrée"
+              title="DOUCEURS & GOURMANDISES"
               items={[
                 {
                   name: "Gâteau de mariage des mariés",
-                  description: "Wedding cake",
+                  description: "Création patissière spécialement conçue pour célébrer l'amour et l'union d'Axel et Ameline.",
                 },
               ]}
             />
