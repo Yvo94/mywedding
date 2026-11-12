@@ -130,13 +130,14 @@ export default function HomePage() {
               <NavLink href="#messages">
                 Livre d'Or
               </NavLink>
-
+              
               <Link
                 href="/rsvp"
                 className="rounded-full bg-[#C66A4A] px-5 py-2.5 text-xs font-medium tracking-wide text-white transition hover:bg-[#9E4F38]"
               >
                 RSVP
               </Link>
+              
             </nav>
 
             {/* MOBILE BUTTON */}
@@ -187,7 +188,7 @@ export default function HomePage() {
                 >
                   Le livre d'Or
                 </MobileNavLink>
-
+                
                 <Link
                   href="/rsvp"
                   onClick={() => setMenuOpen(false)}
@@ -195,6 +196,7 @@ export default function HomePage() {
                 >
                   Confirmer ma présence
                 </Link>
+                
               </nav>
             </div>
           )}
@@ -269,7 +271,7 @@ export default function HomePage() {
           <p className="mx-auto mt-6 max-w-md font-serif text-lg italic text-white/85 md:text-xl">
             « L'amour est plus grand que tout »
           </p>
-          
+       
           <Link
             href="/rsvp"
             className="mt-9 inline-flex rounded-full bg-[#C66A4A] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-black/10 transition hover:bg-[#9E4F38]"

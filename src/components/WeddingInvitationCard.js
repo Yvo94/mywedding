@@ -10,6 +10,7 @@ import { toPng } from "html-to-image";
 export default function WeddingInvitationCard({
   guest,
   numberOfGuests = 0,
+  tableName = null,
 }) {
   const exportRef = useRef(null);
   const [downloading, setDownloading] = useState(false);
@@ -114,6 +115,29 @@ export default function WeddingInvitationCard({
           >
             {totalPeople} {totalPeople > 1 ? "personnes" : "personne"}
           </p>
+          {tableName && (
+            <div
+              className={`rounded-xl border border-[#E8DAD2] bg-[#FAF7F3] ${
+                compact ? "mt-3 px-3 py-3" : "mt-6 px-6 py-5"
+              }`}
+            >
+              <p
+                className={`uppercase tracking-[0.2em] text-[#928982] ${
+                  compact ? "text-[8px]" : "text-xs"
+                }`}
+              >
+                Votre table
+              </p>
+
+              <p
+                className={`mt-1 font-serif font-semibold text-[#9E4F38] ${
+                  compact ? "text-lg" : "text-3xl"
+                }`}
+              >
+                {tableName}
+              </p>
+            </div>
+          )}
 
           <div
             className={`mx-auto flex w-fit rounded-xl border border-[#E8DAD2] bg-white ${
