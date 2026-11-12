@@ -1,0 +1,1205 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
+
+const WEDDING_DATE = new Date("2026-11-14T15:00:00+00:00").getTime();
+
+export default function HomePage() {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(true);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+
+  useEffect(() => {
+    document.title = "Axel & Ameline | Notre mariage";
+    
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = WEDDING_DATE - now;
+
+      if (distance <= 0) {
+        setTimeLeft({
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0,
+        });
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor(
+          (distance / (1000 * 60 * 60)) % 24
+        ),
+        minutes: Math.floor(
+          (distance / (1000 * 60)) % 60
+        ),
+        seconds: Math.floor(
+          (distance / 1000) % 60
+        ),
+      });
+    }
+
+    updateCountdown();
+
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Récupération des messages publiés
+  useEffect(() => {
+    async function loadMessages() {
+      const { data, error } = await supabase
+        .from("guestbook_messages")
+        .select(`
+          id,
+          message,
+          created_at,
+          guests (
+            name
+          )
+        `)
+        .eq("is_published", true)
+        .order("created_at", {
+          ascending: false,
+        });
+
+      if (error) {
+        console.error(
+          "Erreur lors du chargement des messages :",
+          error
+        );
+
+        setLoadingMessages(false);
+        return;
+      }
+
+      setMessages(data || []);
+      setLoadingMessages(false);
+    }
+
+    loadMessages();
+  }, []);
+
+  return (
+    <main className="bg-[#FAF7F3] text-[#332824]">
+      {/* =====================================================
+          HEADER
+      ====================================================== */}
+      <header className="fixed left-0 right-0 top-0 z-50">
+        <div className="mx-auto max-w-7xl px-5 py-5 md:px-8">
+          <div className="flex items-center justify-between rounded-full border border-white/20 bg-[#332824]/40 px-5 py-3 backdrop-blur-md">
+            {/* LOGO */}
+            <NavLink
+              href="/"
+              className="font-serif text-lg tracking-[0.25em] text-white"
+            >
+              Axel & Ameline
+            </NavLink>
+
+            {/* DESKTOP NAV */}
+            <nav className="hidden items-center gap-8 md:flex">
+              <NavLink href="#histoire">
+                Notre histoire
+              </NavLink>
+
+              <NavLink href="#grand-jour">
+                Le grand jour
+              </NavLink>
+
+              <NavLink href="#menu">
+                Menu
+              </NavLink>
+
+              <NavLink href="#galerie">
+                Galerie
+              </NavLink>
+
+              <NavLink href="#messages">
+                Livre d'Or
+              </NavLink>
+              
+              <Link
+                href="/rsvp"
+                className="rounded-full bg-[#C66A4A] px-5 py-2.5 text-xs font-medium tracking-wide text-white transition hover:bg-[#9E4F38]"
+              >
+                RSVP
+              </Link>
+              
+            </nav>
+
+            {/* MOBILE BUTTON */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white md:hidden"
+              aria-label="Menu"
+            >
+              {menuOpen ? "×" : "☰"}
+            </button>
+          </div>
+
+          {/* MOBILE MENU */}
+          {menuOpen && (
+            <div className="mt-2 rounded-2xl border border-white/20 bg-[#332824]/95 p-5 backdrop-blur-md md:hidden">
+              <nav className="flex flex-col gap-4">
+                <MobileNavLink
+                  href="#histoire"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Notre histoire
+                </MobileNavLink>
+
+                <MobileNavLink
+                  href="#grand-jour"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Le grand jour
+                </MobileNavLink>
+
+                <MobileNavLink
+                  href="#menu"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Le menu
+                </MobileNavLink>
+
+                <MobileNavLink
+                  href="#galerie"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Galerie
+                </MobileNavLink>
+
+                <MobileNavLink
+                  href="#messages"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Le livre d'Or
+                </MobileNavLink>
+                
+                <Link
+                  href="/rsvp"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-full bg-[#C66A4A] px-5 py-3 text-center text-sm text-white"
+                >
+                  Confirmer ma présence
+                </Link>
+                
+              </nav>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* =====================================================
+          HERO
+      ====================================================== */}
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#332824]">
+        {/* IMAGE */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/axel-ameline.png"
+            alt="Axel et Ameline"
+            fill
+            priority
+            className="object-cover"
+          />
+
+          <div className="absolute inset-0 bg-[#332824]/55" />
+
+          <div className="absolute inset-0 bg-gradient-to-b from-[#332824]/30 via-[#332824]/35 to-[#332824]/80" />
+        </div>
+
+        {/* DECORATION */}
+        <div className="absolute left-8 top-32 h-20 w-20 rounded-full border border-[#D99072]/40 md:left-16" />
+
+        <div className="absolute bottom-24 right-8 h-28 w-28 rounded-full border border-[#D99072]/30 md:right-16" />
+
+        {/* CONTENT */}
+        <div className="relative z-10 px-6 pt-25 text-center text-white">
+          <p className="mb-6 text-xl uppercase tracking-[0.5em] text-[#F1C5B4]">
+            CÉLÉBRONS NOTRE MARIAGE
+          </p>
+
+          <h1 className="font-serif text-6xl leading-none md:text-8xl lg:text-9xl">
+            Axel
+          </h1>
+
+          <div className="my-4 flex items-center justify-center gap-4 md:my-5">
+            <span className="h-px w-10 bg-[#D99072]" />
+
+            <span className="font-serif text-3xl text-[#D99072]">
+              &
+            </span>
+
+            <span className="h-px w-10 bg-[#D99072]" />
+          </div>
+
+          <h1 className="font-serif text-6xl leading-none md:text-8xl lg:text-9xl">
+            Ameline
+          </h1>
+          
+          <div className="my-4 flex items-center justify-center gap-4 md:my-5">
+            <span className="h-px w-10 bg-[#D99072]" />
+              <span className="font-serif text-xl text-[#D99072]">
+                &#128197;
+              </span>
+            <span className="h-px w-10 bg-[#D99072]" />
+          </div>
+          <p className="mt-8 text-sm uppercase tracking-[0.35em] text-[#F1C5B4] text-lg gras">
+              SAMEDI <br/> 14 NOVEMBRE 2026
+          </p>
+
+          <p className="mt-3 text-sm text-white/70">
+            MAIRIE DU PLATEAU
+          </p>
+
+          <div className="mx-auto mt-7 h-px w-16 bg-[#C66A4A]" />
+
+          <p className="mx-auto mt-6 max-w-md font-serif text-lg italic text-white/85 md:text-xl">
+            « L'amour est plus grand que tout »
+          </p>
+       
+          <Link
+            href="/rsvp"
+            className="mt-9 inline-flex rounded-full bg-[#C66A4A] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-black/10 transition hover:bg-[#9E4F38]"
+          >
+            Confirmer ma présence
+          </Link>
+
+          {/* COUNTDOWN */}
+          <div className="mx-auto mt-14 grid max-w-md grid-cols-4 gap-3">
+            <CountdownItem
+              value={timeLeft.days}
+              label="Jours"
+            />
+
+            <CountdownItem
+              value={timeLeft.hours}
+              label="Heures"
+            />
+
+            <CountdownItem
+              value={timeLeft.minutes}
+              label="Minutes"
+            />
+
+            <CountdownItem
+              value={timeLeft.seconds}
+              label="Secondes"
+            />
+          </div>
+        </div>
+
+        {/* SCROLL */}
+        <a
+          href="#intro"
+          className="absolute bottom-7 left-1/2 -translate-x-1/2 text-xs uppercase tracking-[0.3em] text-white/60 transition hover:text-white"
+        >
+          Découvrir
+        </a>
+      </section>
+
+      {/* =====================================================
+          INTRO
+      ====================================================== */}
+      <section
+        id="intro"
+        className="px-6 py-24 md:py-32"
+      >
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs uppercase tracking-[0.4em] text-[#C66A4A]">
+            UNE NOUVELLE AVENTURE À DEUX
+          </p>
+
+          <h2 className="mt-5 font-serif text-3xl leading-tight md:text-6xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+            Deux cœurs, deux histoires,
+            <br />
+            un amour, une vie.
+          </h2>
+
+          <div className="mx-auto mt-7 h-px w-16 bg-[#D99072]" />
+
+          <p className="mx-auto mt-7 max-w-3xl text-sm leading-8 text-[#75665F] md:text-base">
+            Au fil du temps, nous avons partagé des instants précieux, 
+            des sourires complices et de beaux rêves.<br />
+            Aujourd’hui, 
+            nous avons choisi d’unir nos chemins pour écrire ensemble 
+            la plus belle histoire de notre vie.
+            
+          </p>
+          <p className="text-lg gras text-[#C66A4A]">
+              <br />Nous serions heureux de vous avoir à nos côtés pour célébrer
+              notre union.
+            </p>
+        </div>
+      </section>
+
+      {/* =====================================================
+          HISTOIRE
+      ====================================================== */}
+      <section
+        id="histoire"
+        className="overflow-hidden bg-[#F1E5DE] px-6 py-20 md:py-28"
+      >
+        <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 md:gap-20">
+          {/* IMAGE */}
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem]">
+            <Image
+              src="/images/story.jpg"
+              alt="Axel et Ameline"
+              fill
+              className="object-cover"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-[#332824]/20 to-transparent" />
+          </div>
+
+          {/* TEXT */}
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-[#9E4F38]">
+              Notre histoire.
+            </p>
+
+            <h2 className="mt-5 font-title text-3xl md:text-6xl font-bold" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+              Une rencontre, un amour,
+              <br />
+              une promesse pour la vie...
+            </h2>
+
+            <div className="mt-7 h-px w-64 bg-[#C66A4A]" />
+
+            <p className="mt-7 text-sm leading-8 text-[#75665F]">
+              Certaines rencontres changent un destin. 
+              La nôtre a fait naître un amour qui, au fil du temps, 
+              s’est nourri de complicité, de confiance et de tendresse.
+            </p>
+
+            <p className="mt-5 text-sm leading-8 text-[#75665F]">
+              Aujourd’hui, forts de ce chemin parcouru ensemble, 
+              nous avons choisi de nous unir pour la vie, 
+              de partager nos rêves et de construire un avenir 
+              où l’amour sera notre force et notre engagement, 
+              chaque jour renouvelé.
+            </p>
+
+            <p className="text-lg gras text-[#C66A4A]">
+              <br />Le 14 novembre 2026, nous écrirons ensemble une nouvelle 
+              page de notre histoire : celle d’un amour scellé par une promesse, 
+              porté par la foi et tourné vers l’éternité.
+            </p>
+
+            <p className="mt-8 font-serif text-xl italic text-[#9E4F38]">
+              Axel & Ameline ❤️
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          LE GRAND JOUR
+      ====================================================== */}
+      <section
+        id="grand-jour"
+        className="px-6 py-24 md:py-32"
+      >
+        <div className="mx-auto max-w-6xl">
+
+          {/* INTRO */}
+          <div className="text-center">
+            <p className="text-xs uppercase tracking-[0.4em] text-[#C66A4A]">
+              Le grand jour
+            </p>
+
+            <h2 className="mt-5 font-serif text-4xl md:text-6xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+              Rendez-vous le 14 novembre 2026
+            </h2>
+
+            <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-[#75665F]">
+              Nous avons hâte de vivre cette journée entourés des personnes
+              qui comptent pour nous.
+            </p>
+          </div>
+
+          
+          {/* PROGRAMME */}
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+
+            {/* MARIAGE CIVIL */}
+            <div className="flex flex-col">
+              <div className="flex-1">
+                <EventCard
+                  number="01"
+                  title="Mariage civil"
+                  time="12h00"
+                  location="Mairie du Plateau"
+                />
+              </div>
+
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Mairie+du+Plateau%2C+Avenue+Chardy%2C+Abidjan%2C+C%C3%B4te+d%27Ivoire"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-[#C66A4A] px-5 py-3 text-sm font-medium text-[#9E4F38] transition hover:bg-[#C66A4A] hover:text-white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                Voir la localisation
+              </a>
+            </div>
+
+            {/* BÉNÉDICTION NUPTIALE */}
+            <div className="flex flex-col">
+              <div className="flex-1">
+                <EventCard
+                  number="02"
+                  title="Bénédiction nuptiale"
+                  time="14h00"
+                  location="Paroisse Saint Matthieu Cité Verte"
+                />
+              </div>
+
+              <a
+                href="https://www.google.com/maps/place/Paroisse+Saint+Matthieu/data=!4m7!3m6!1s0xfc1c1a9105252fd:0xbed79cc2e9c5974e!8m2!3d5.331656!4d-4.1070087!16s%2Fg%2F11xg72hjh!19sChIJ_VJSEKnBwQ8RTpfF6cKc174?authuser=0&hl=fr&g_ep=EgoyMDI2MTAyMC4wIJJjKgBIAVAD&rclk=1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-[#C66A4A] px-5 py-3 text-sm font-medium text-[#9E4F38] transition hover:bg-[#C66A4A] hover:text-white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                Voir la localisation
+              </a>
+            </div>
+
+            {/* RÉCEPTION */}
+            <div className="flex flex-col">
+              <div className="flex-1">
+                <EventCard
+                  number="03"
+                  title="Réception"
+                  time="16h00"
+                  location="Espace Événementiel HORIZON"
+                />
+              </div>
+
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Espace+Evenementiel+HORIZON%2C+Abidjan%2C+Cote+d%27Ivoire"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-[#C66A4A] px-5 py-3 text-sm font-medium text-[#9E4F38] transition hover:bg-[#C66A4A] hover:text-white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+                Voir la localisation
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* =====================================================
+          LE MENU
+      ====================================================== */}
+      <section
+        id="menu"
+        className="bg-[#F1E5DE] px-6 py-24 sm:px-10 lg:px-20"
+      >
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#C66A4A]">
+              Pour vous régaler
+            </p>
+
+            <h2 className="mt-3 font-serif text-4xl text-[#332824] sm:text-5xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+              Le menu du jour J
+            </h2>
+
+            <div className="mx-auto mt-5 h-px w-16 bg-[#C66A4A]" />
+
+            <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-[#75665F]">
+              Une célébration de saveurs et de partage, autour
+              de spécialités soigneusement choisies pour cette
+              journée exceptionnelle.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 md:grid-cols-2">
+            
+            <MenuCard
+              icon="🥗"
+              title="LES ENTREES"
+              items={[
+                {
+                  name: "Macédoine de légumes frais",
+                  description: "Légumes de saison, mayonnaise légère.",
+                },
+                {
+                  name: "Salade composée",
+                  description: "Assortiment de crudités fraiches et croquantes.",
+                },
+              ]}
+            />
+
+            <MenuCard
+              icon="🍽️"
+              title="LES PLATS DE RESISTANCE"
+              items={[
+                {
+                  name: "Poisson braisé",
+                  description:
+                    "Poisson mariné et grillé à la perfection, accompagné de ses condiments.",
+                },
+                {
+                  name: "Tchep au poulet",
+                  description: "Riz parfumé aux légumes et poulet mijoté.",
+                },
+                {
+                  name: "Soupe du pêcheur aux saveurs marines",
+                  description:
+                    "Assortiment de fruits de mer et poisson, servi avec de l’attiéké rouge.",
+                },
+                {
+                  name: "Biékosseur et son écrasé de bananes plantains et maniocs",
+                  description:
+                    "Sauce traditionnelle ivoirienne aux saveurs authentiques accompagnée de bananes plantains et maniocs pilés.",
+                },
+                {
+                  name: "Poulet flambé aux notes aromatiques",
+                  description:
+                    "Poulet mariné aux épices et aromates, grillé puis flambé pour révéler toute sa richesse gustative.",
+                },
+              ]}
+            />
+
+            <MenuCard
+              icon="🔥"
+              title="LES ACCOMPAGNEMENTS"
+              items={[
+                {
+                  name: "Alloco doré",
+                  description: "Délicieuses tranches de banane plantain mûre, frites et dorées à souhait.",
+                },
+                {
+                  name: "Attiéké",
+                  description: "Semoule de manioc finement granulée, moelleuse et savoureuse.",
+                },
+                {
+                  name: "Pommes de terre frites croustillantes",
+                  description: "Pommes de terre fraîchement découpées et frites.",
+                },
+              ]}
+            />
+
+            <MenuCard
+              icon="🎂"
+              title="DOUCEURS & GOURMANDISES"
+              items={[
+                {
+                  name: "Gâteau de mariage des mariés",
+                  description: "Création patissière spécialement conçue pour célébrer l'amour et l'union d'Axel et Ameline.",
+                },
+              ]}
+            />
+
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="font-serif text-lg italic leading-8 text-[#9E4F38]">
+              Que l’amour et le partage soient au cœur de cette
+              belle célébration.
+            </p>
+
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-[#C66A4A]">
+              Axel & Améline · 14 novembre 2026
+            </p>
+          </div>
+        </div>
+      </section>
+
+
+      {/* =====================================================
+      {/* =====================================================
+          CITATIONS BIBLIQUES
+      ====================================================== */}
+      <section className="bg-[#C66A4A] px-6 py-24 sm:px-10 lg:px-20">
+        <div className="mx-auto max-w-6xl">
+
+          {/* Titre */}
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#F8E9E2]">
+              La parole qui nous unit
+            </p>
+
+            <h2 className="mt-3 font-serif text-4xl text-white sm:text-5xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+              Quelques mots pour notre union
+            </h2>
+
+            <div className="mx-auto mt-5 h-px w-16 bg-[#F8E9E2]" />
+          </div>
+
+          {/* Citations Axel & Ameline */}
+          <div className="mt-14 grid gap-8 md:grid-cols-2">
+
+            {/* Citation Axel */}
+            <div className="relative rounded-3xl bg-[#FFFDFC] px-7 py-9 text-center shadow-lg">
+              <div className="absolute left-1/2 top-0 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#F8E9E2] text-xl text-[#C66A4A]">
+                “
+              </div>
+
+              <p className="font-serif text-xl leading-8 text-[#4A3B35]">
+                « Maris, aimez vos femmes comme le Christ a aimé l’Église. »
+              </p>
+
+              <div className="mx-auto mt-6 h-px w-10 bg-[#C66A4A]" />
+
+              <p className="mt-4 text-sm font-medium uppercase tracking-[0.2em] text-[#C66A4A]">
+                Axel
+              </p>
+
+              <p className="mt-1 text-xs text-[#928982]">
+                Éphésiens 5, 25
+              </p>
+            </div>
+
+            {/* Citation Ameline */}
+            <div className="relative rounded-3xl bg-[#FFFDFC] px-7 py-9 text-center shadow-lg">
+              <div className="absolute left-1/2 top-0 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#F8E9E2] text-xl text-[#C66A4A]">
+                “
+              </div>
+
+              <p className="font-serif text-xl leading-8 text-[#4A3B35]">
+                « Je suis à mon bien-aimé, et mon bien-aimé est à moi. »
+              </p>
+
+              <div className="mx-auto mt-6 h-px w-10 bg-[#C66A4A]" />
+
+              <p className="mt-4 text-sm font-medium uppercase tracking-[0.2em] text-[#C66A4A]">
+                Ameline
+              </p>
+
+              <p className="mt-1 text-xs text-[#928982]">
+                Cantique des Cantiques 6, 3
+              </p>
+            </div>
+
+          </div>
+
+          {/* Citation principale actuelle */}
+          <div className="mx-auto mt-16 max-w-3xl text-center">
+
+            <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-2xl text-white">
+              ♡
+            </div>
+
+            <blockquote className="font-serif text-2xl leading-10 text-white sm:text-3xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+              « L’amour est patient, l’amour est serviable…
+               il espère tout, il endure tout. »
+            </blockquote>
+
+            <div className="mx-auto mt-6 h-px w-12 bg-[#F8E9E2]" />
+
+            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.25em] text-[#F8E9E2]">
+              1 Corinthiens 13, 4-7
+            </p>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* =====================================================
+          GALERIE
+      ====================================================== */}
+      <section
+        id="galerie"
+        className="bg-[#FAF7F3] px-6 py-24 md:py-32"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <p className="text-xs uppercase tracking-[0.4em] text-[#C66A4A]">
+              Quelques souvenirs
+            </p>
+
+            <h2 className="mt-5 font-serif text-4xl md:text-6xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+              Notre galerie
+            </h2>
+          </div>
+
+          <div className="mt-14 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">
+            <GalleryImage
+              src="/images/gallery-1.jpg"
+              alt="Axel et Ameline"
+              className="aspect-[3/4]"
+            />
+
+            <GalleryImage
+              src="/images/gallery-2.jpg"
+              alt="Axel et Ameline"
+              className="aspect-[3/4]"
+            />
+
+            <GalleryImage
+              src="/images/gallery-3.jpg"
+              alt="Axel et Ameline"
+              className="aspect-[3/4]"
+            />
+
+            <GalleryImage
+              src="/images/gallery-4.jpg"
+              alt="Axel et Ameline"
+              className="aspect-[3/4]"
+            />
+
+            <GalleryImage
+              src="/images/gallery-5.jpg"
+              alt="Axel et Ameline"
+              className="aspect-[3/4]"
+            />
+
+            <GalleryImage
+              src="/images/gallery-6.jpg"
+              alt="Axel et Ameline"
+              className="aspect-[3/4]"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          RSVP CTA
+      ====================================================== */}
+      <section className="bg-[#332824] px-6 py-24 text-center text-white md:py-32">
+        <div className="mx-auto max-w-2xl">
+          <p className="text-xs uppercase tracking-[0.4em] text-[#D99072]">
+            Nous espérons vous compter parmi nous
+          </p>
+
+          <h2 className="mt-5 font-serif text-4xl md:text-6xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+            Serez-vous des nôtres ?
+          </h2>
+
+          <p className="mx-auto mt-6 max-w-lg text-sm leading-7 text-white/65">
+            Votre présence rendra cette journée encore plus spéciale.
+            Merci de confirmer votre présence.
+          </p>
+
+          <Link
+            href="/rsvp"
+            className="mt-9 inline-flex rounded-full bg-[#C66A4A] px-8 py-4 text-sm font-medium transition hover:bg-[#9E4F38]"
+          >
+            Confirmer ma présence
+          </Link>
+        </div>
+      </section>
+
+      
+      {/* =====================================================
+          LIVRE D'OR
+      ====================================================== */}
+      <section
+        id="messages"
+        className="bg-[#F1E5DE] px-6 py-24 sm:px-10 lg:px-20"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#C66A4A]">
+              Vos mots nous touchent
+            </p>
+
+            <h2 className="mt-3 font-serif text-4xl text-[#332824] sm:text-5xl" style={{ fontFamily: 'Constantia, Georgia, serif' }}>
+              Vos mots doux
+            </h2>
+
+            <div className="mx-auto mt-5 h-px w-16 bg-[#C66A4A]" />
+
+            <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-[#75665F]">
+              Découvrez les petits mots laissés par notre famille et nos amis
+              pour accompagner ce merveilleux moment.
+            </p>
+          </div>
+          
+          {/* Messages venant de Supabase */}
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {loadingMessages ? (
+              <div className="col-span-full py-10 text-center">
+                <p className="text-sm text-[#75665F]">
+                  Chargement des messages...
+                </p>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="col-span-full py-10 text-center">
+                <p className="font-serif text-xl text-[#332824]">
+                  Soyez les premiers à laisser un petit mot 💕
+                </p>
+
+                <p className="mt-2 text-sm text-[#75665F]">
+                  Vos messages apparaîtront ici après validation.
+                </p>
+              </div>
+            ) : (
+              messages.map((item) => (
+                <GuestMessage
+                  key={item.id}
+                  name={item.guests?.name || "Un invité"}
+                  message={item.message}
+                  onClick={() => setSelectedMessage(item)}
+                />
+              ))
+            )}
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link
+              href="/rsvp"
+              className="inline-flex rounded-full bg-[#C66A4A] px-7 py-3.5 text-sm font-medium text-white transition hover:bg-[#9E4F38]"
+            >
+              Laisser un message
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          MODALE MESSAGE INVITÉ
+      ===================================================== */}
+      {selectedMessage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm"
+          onClick={() => setSelectedMessage(null)}
+        >
+          <div
+            className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-[#FFFDFC] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Barre terracotta */}
+            <div className="h-2 shrink-0 bg-[#C66A4A]" />
+
+            {/* Bouton fermer */}
+            <button
+              type="button"
+              onClick={() => setSelectedMessage(null)}
+              className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-[#F8E9E2] text-xl text-[#75665F] transition hover:bg-[#EED8CE]"
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+
+            {/* CONTENU SCROLLABLE */}
+            <div className="overflow-y-auto px-6 py-8 sm:px-8">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F8E9E2]">
+                <span className="text-2xl text-[#C66A4A]">♡</span>
+              </div>
+
+              <div className="mt-5 text-center">
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#C66A4A]">
+                  Livre d'or
+                </p>
+
+                <h2 className="mt-2 font-serif text-2xl text-[#332824]">
+                  Un petit mot pour Axel & Ameline
+                </h2>
+              </div>
+
+              {/* Message */}
+              <div className="mt-7 rounded-2xl bg-[#F1E5DE] px-6 py-7">
+                <p className="whitespace-pre-line break-words font-serif text-lg leading-8 text-[#4A3B35]">
+                  « {selectedMessage.message} »
+                </p>
+              </div>
+
+              {/* Auteur */}
+              <div className="mt-6 text-center">
+                <p className="font-medium text-[#332824]">
+                  {selectedMessage.guests?.name || "Un invité"}
+                </p>
+
+                <p className="mt-1 text-xs text-[#928982]">
+                  Avec tout notre amour ♡
+                </p>
+              </div>
+
+              {/* Bouton */}
+              <div className="mt-7 pb-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMessage(null)}
+                  className="rounded-full bg-[#C66A4A] px-7 py-3 text-sm font-medium text-white transition hover:bg-[#9E4F38]"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================
+          FOOTER
+      ====================================================== */}
+      <footer className="bg-[#FAF7F3] px-6 py-12 text-center">
+        <p className="font-serif text-3xl">
+          Axel <span className="text-[#C66A4A]">&</span> Ameline
+        </p>
+
+        <p className="mt-3 text-xs uppercase tracking-[0.3em] text-[#9E4F38]">
+          14 Novembre 2026
+        </p>
+
+        <div className="mx-auto mt-6 h-px w-10 bg-[#D99072]" />
+
+        <p className="mt-5 text-xs text-[#928982]">
+          L'amour est plus grand que tout
+        </p>
+      </footer>
+    </main>
+  );
+}
+
+/* =========================================================
+   COMPONENTS
+========================================================= */
+
+function NavLink({ href, children }) {
+  return (
+    <a
+      href={href}
+      className="text-xs text-white/80 transition hover:text-white"
+    >
+      {children}
+    </a>
+  );
+}
+
+function MobileNavLink({ href, children, onClick }) {
+  return (
+    <a
+      href={href}
+      onClick={onClick}
+      className="text-sm text-white/80 transition hover:text-white"
+    >
+      {children}
+    </a>
+  );
+}
+
+function CountdownItem({ value, label }) {
+  return (
+    <div className="rounded-xl border border-white/15 bg-white/10 px-2 py-3 backdrop-blur-sm">
+      <p className="font-serif text-2xl md:text-3xl">
+        {String(value).padStart(2, "0")}
+      </p>
+
+      <p className="mt-1 text-[9px] uppercase tracking-[0.15em] text-white/55">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function EventCard({
+  number,
+  title,
+  time,
+  location,
+}) {
+  return (
+    <div className="group rounded-2xl border border-[#E8DAD2] bg-white p-7 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-[#C66A4A]/10 md:p-9">
+      <div className="flex items-start justify-between">
+        <span className="font-serif text-3xl text-[#D99072]">
+          {number}
+        </span>
+
+        <span className="text-[#C66A4A]">♡</span>
+      </div>
+
+      <h3 className="mt-10 font-serif text-3xl">
+        {title}
+      </h3>
+
+      <div className="mt-6 space-y-3 text-sm text-[#75665F]">
+        <p>
+          <span className="mr-2 text-[#C66A4A]">◷</span>
+          {time}
+        </p>
+
+        <p>
+          <span className="mr-2 text-[#C66A4A]">⌖</span>
+          {location}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function GalleryImage({ src, alt, className }) {
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-2xl bg-[#E8DAD2] ${className}`}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover transition duration-700 group-hover:scale-105"
+      />
+
+      <div className="absolute inset-0 bg-[#9E4F38]/0 transition group-hover:bg-[#9E4F38]/10" />
+    </div>
+  );
+}
+
+/*function MenuCard({ icon, title, items }) {
+  return (
+    <div className="group rounded-3xl border border-[#E8DAD2] bg-white p-7 text-center shadow-[0_10px_40px_rgba(51,40,36,0.04)] transition hover:-translate-y-1 hover:shadow-[0_15px_45px_rgba(51,40,36,0.08)]">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F8E9E2] text-2xl">
+        {icon}
+      </div>
+
+      <h3 className="mt-5 font-serif text-2xl text-[#332824]">
+        {title}
+      </h3>
+
+      <div className="mx-auto my-4 h-px w-10 bg-[#D99072]" />
+
+      <div className="space-y-2">
+        {items.map((item, index) => (
+          <p
+            key={index}
+            className="text-sm leading-6 text-[#75665F]"
+          >
+            {item}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}*/
+
+function MenuCard({ icon, title, items }) {
+  return (
+    <div className="group rounded-3xl border border-[#E8DAD2] bg-white p-7 text-center shadow-[0_10px_40px_rgba(51,40,36,0.04)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_15px_45px_rgba(51,40,36,0.08)] sm:p-8">
+      {/* Icône */}
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F8E9E2] text-2xl transition duration-300 group-hover:scale-110">
+        {icon}
+      </div>
+
+      {/* Titre de la catégorie */}
+      <h3 className="mt-5 font-serif text-2xl text-[#332824]">
+        {title}
+      </h3>
+
+      <div className="mx-auto my-5 h-px w-10 bg-[#D99072]" />
+
+      {/* Liste des plats */}
+      <div className="space-y-6">
+        {items.map((item, index) => (
+          <div key={index}>
+            <h4 className="text-sm font-semibold leading-6 text-[#9E4F38]">
+              {typeof item === "string" ? item : item.name}
+            </h4>
+
+            {typeof item !== "string" && item.description && (
+              <p className="mt-1 text-sm leading-6 text-[#75665F]">
+                {item.description}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+function GuestMessage({ name, message, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group w-full text-left"
+    >
+      <div className="h-full rounded-2xl border border-[#E8DAD2] bg-[#FFFDFC] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+        {/* Avatar */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F8E9E2] font-serif text-lg text-[#C66A4A]">
+            {(name || "?").charAt(0).toUpperCase()}
+          </div>
+
+          <div>
+            <p className="font-medium text-[#332824]">
+              {name || "Un invité"}
+            </p>
+
+            <p className="text-xs text-[#928982]">
+              Un mot pour les mariés
+            </p>
+          </div>
+        </div>
+
+        {/* Aperçu du message */}
+        <p className="mt-5 line-clamp-3 text-sm leading-7 text-[#75665F]">
+          “{message}”
+        </p>
+
+        {/* Lire */}
+        <div className="mt-5 flex items-center text-xs font-semibold text-[#C66A4A]">
+          <span>Lire le message</span>
+
+          <span className="ml-2 transition-transform duration-300 group-hover:translate-x-1">
+            →
+          </span>
+        </div>
+      </div>
+    </button>
+  );
+}

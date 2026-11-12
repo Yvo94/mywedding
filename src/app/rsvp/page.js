@@ -239,21 +239,284 @@ export default function RSVPPage() {
             </Link>
           </div>
 
-          {/* INTRODUCTION */}
+          {!submitted ? (
+            <>
+              {/* INTRODUCTION */}
               <div className="mb-6 text-center">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[#C66A4A]">
+                  Votre présence
+                </p>
 
                 <h2 className="mt-2 font-serif text-3xl md:text-4xl">
-                  FIN DES CONFIRMATIONS DE PRESENCE
+                  Confirmez votre présence
                 </h2>
 
                 <div className="mx-auto mt-4 h-px w-12 bg-[#D99072]" />
 
                 <p className="mt-3 text-sm leading-6 text-[#75665F]">
-                  Merci et à bientôt !!!
+                  Merci de nous indiquer si vous serez parmi nous le
+                  14 novembre 2026.
                 </p>
               </div>
-          
-          
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* NOM + WHATSAPP */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="name"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      Nom et prénoms *
+                    </label>
+
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Ex. Yves Roland YAO"
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="whatsapp"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      Numéro WhatsApp *
+                    </label>
+
+                    <input
+                      id="whatsapp"
+                      name="whatsapp"
+                      type="tel"
+                      required
+                      value={formData.whatsapp}
+                      onChange={handleChange}
+                      placeholder="05 44 36 03 78"
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
+                    />
+                  </div>
+                </div>
+
+                {/* LIEN + CÔTÉ */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label
+                      htmlFor="relation"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      Lien avec les mariés *
+                    </label>
+
+                    <select
+                      id="relation"
+                      name="relation"
+                      required
+                      value={formData.relation}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none focus:border-[#C66A4A]"
+                    >
+                      <option value="">Sélectionnez</option>
+                      <option value="parent">Parent</option>
+                      <option value="ami">Ami(e)</option>
+                      <option value="collegue">Collègue</option>
+                      <option value="communaute_religieuse">
+                        Communauté religieuse
+                      </option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="side"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      Côté *
+                    </label>
+
+                    <select
+                      id="side"
+                      name="side"
+                      required
+                      value={formData.side}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none focus:border-[#C66A4A]"
+                    >
+                      <option value="">Sélectionnez</option>
+                      <option value="Axel">Axel</option>
+                      <option value="Améline">Ameline</option>
+                      <option value="Axel & Améline">
+                        Axel & Ameline
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* PRÉSENCE */}
+                <div>
+                  <p className="mb-2 text-sm font-medium">
+                    Serez-vous présent(e) ? *
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <label
+                      className={`flex cursor-pointer items-center rounded-xl border p-3 text-sm transition ${
+                        formData.attendance === "Présent"
+                          ? "border-[#C66A4A] bg-[#F8E9E2]"
+                          : "border-[#DED3CC] bg-[#FDFCFB] hover:border-[#D99072]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="attendance"
+                        value="Présent"
+                        checked={formData.attendance === "Présent"}
+                        onChange={handleChange}
+                        required
+                        className="mr-2 accent-[#C66A4A]"
+                      />
+                      Oui, je serai présent(e)
+                    </label>
+
+                    <label
+                      className={`flex cursor-pointer items-center rounded-xl border p-3 text-sm transition ${
+                        formData.attendance === "Absent"
+                          ? "border-[#C66A4A] bg-[#F8E9E2]"
+                          : "border-[#DED3CC] bg-[#FDFCFB] hover:border-[#D99072]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="attendance"
+                        value="Absent"
+                        checked={formData.attendance === "Absent"}
+                        onChange={handleChange}
+                        required
+                        className="mr-2 accent-[#C66A4A]"
+                      />
+                      Je ne pourrai pas venir
+                    </label>
+                  </div>
+                </div>
+
+                {/* ACCOMPAGNANTS */}
+                {formData.attendance === "Présent" && (
+                  <div>
+                    <label
+                      htmlFor="guests"
+                      className="mb-1.5 block text-sm font-medium"
+                    >
+                      Nombre d'accompagnants
+                    </label>
+
+                    <select
+                      id="guests"
+                      name="guests"
+                      value={formData.guests}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none focus:border-[#C66A4A]"
+                    >
+                      <option value="0">Je viens seul(e)</option>
+                      <option value="1">1 accompagnant</option>
+                      <option value="2">2 accompagnants</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* MESSAGE */}
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="mb-1.5 block text-sm font-medium"
+                  >
+                    Un petit mot pour les mariés
+                  </label>
+
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={2}
+                    value={formData.message}
+                    onChange={handleChange}
+                    placeholder="Écrivez-nous un petit mot..."
+                    className="w-full resize-y rounded-xl border border-[#DED3CC] bg-[#FDFCFB] px-3 py-2.5 text-sm outline-none transition focus:border-[#C66A4A] focus:ring-1 focus:ring-[#C66A4A]"
+                  />
+                </div>
+
+                {/* BOUTON */}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full rounded-full bg-[#C66A4A] px-5 py-3 text-sm font-medium tracking-wide text-white shadow-lg shadow-[#C66A4A]/15 transition hover:bg-[#9E4F38] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {submitting
+                    ? "Enregistrement..."
+                    : "Confirmer ma réponse"}
+                </button>
+
+                <p className="text-center text-xs leading-5 text-[#928982]">
+                  Vos informations seront utilisées uniquement dans le
+                  cadre de notre mariage.
+                </p>
+              </form>
+            </>
+          ) : (
+            /* CONFIRMATION */
+            <div className="flex h-full flex-col items-center justify-center py-8 text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#F8E9E2] font-serif text-2xl text-[#C66A4A]">
+                ♥
+              </div>
+
+              <p className="mt-5 text-xs uppercase tracking-[0.3em] text-[#C66A4A]">
+                Merci
+              </p>
+
+              <h2 className="mt-3 font-serif text-3xl md:text-4xl">
+                Votre réponse est enregistrée
+              </h2>
+
+              <div className="mx-auto mt-5 h-px w-12 bg-[#D99072]" />
+
+              <p className="mt-5 text-sm leading-6 text-[#75665F]">
+                Merci beaucoup{" "}
+                <strong className="text-[#9E4F38]">
+                  {guestData?.name || formData.name}
+                </strong>
+                . Nous vous remercions d'avoir répondu à notre invitation.
+              </p>
+
+              
+              {guestData && formData.attendance === "Présent" && (
+                <div className="mx-auto mt-3 w-full min-w-0 max-w-[320px]">
+                  <WeddingInvitationCard
+                    guest={guestData}
+                    numberOfGuests={Number(formData.guests)}
+                  />
+                </div>
+              )}
+
+
+              <button
+                type="button"
+                onClick={() => setSubmitted(false)}
+                className="mt-6 text-sm font-medium text-[#C66A4A] underline underline-offset-4"
+              >
+                ✏ Modifier ma réponse
+              </button>
+
+              <Link
+                href="/"
+                className="mt-5 inline-flex rounded-full border border-[#DED3CC] px-6 py-3 text-sm text-[#75665F] transition hover:border-[#C66A4A] hover:text-[#C66A4A]"
+              >
+                Retour au mariage
+              </Link>
+            </div>
+          )}
         </section>
       </div>
 
