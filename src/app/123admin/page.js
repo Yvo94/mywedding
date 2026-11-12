@@ -69,6 +69,9 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
             number_of_guests,
             message,
             created_at
+          ),
+          wedding_tables (
+            name
           )
         `)
         .order("created_at", { ascending: false });
@@ -592,6 +595,7 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
     );
   };
 
+  
   const openWhatsAppMessage = (guest) => {
     const phone = String(guest.whatsapp || "").replace(/\D/g, "");
 
@@ -603,23 +607,31 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
     }
 
     const firstName = (guest.name || "cher invité")
-      .trim()
-      .split(/\s+/)[0];
+      .trim();
+      //.split(/\s+/)[0];
 
-    const message = whatsappMessage.replace(
-      /\{prenom\}/gi,
-      firstName
-    );
+    const tableName = guest.wedding_tables?.name || "Non attribuée";
+    const invitationcode = guest.invitation_code || "Non attribuée";
 
-    // Si les numéros sont déjà enregistrés au format international,
-    // adapte cette ligne pour éviter d'ajouter le préfixe une seconde fois.
+    const message = whatsappMessage
+      .replace(/\{prenom\}/gi, firstName)
+      .replace(/\{table\}/gi, tableName)
+      .replace(/\{code\}/gi, invitationcode );
+
     const internationalPhone = phone.startsWith("225")
       ? phone
       : `225${phone}`;
 
-    const url = `https://wa.me/${internationalPhone}?text=${encodeURIComponent(message)}`;
+        
+    const params = new URLSearchParams({
+      phone: internationalPhone,
+      text: message.normalize("NFC"),
+    });
+
+    const url = `https://api.whatsapp.com/send/?${params.toString()}`;
 
     window.open(url, "_blank", "noopener,noreferrer");
+
 
     setWhatsappOpened((current) =>
       current.includes(guest.id)
@@ -627,6 +639,7 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
         : [...current, guest.id]
     );
   };
+
 
   const openNextWhatsApp = () => {
     const nextGuest = guests.find(
@@ -1617,7 +1630,7 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
                         <th className="px-6 py-4 font-medium">Invité</th>
                         <th className="px-6 py-4 font-medium">Côté</th>
                         <th className="px-6 py-4 font-medium">Personnes</th>
-                        <th className="px-6 py-4 font-medium">Statut</th>
+                        <th className="px-6 py-4 font-medium">Lien</th>
                         <th className="px-6 py-4 font-medium">Table</th>
                       </tr>
                     </thead>
@@ -1657,7 +1670,8 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
                               </td>
 
                               <td className="px-6 py-4">
-                                <StatusBadge status={status} />
+                                {/*<StatusBadge status={status} />*/}
+                                {guest.relation}
                               </td>
 
                               <td className="px-6 py-4">
@@ -1844,13 +1858,15 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
                   </div>
                 </div>
 
+                                
                 <div className="rounded-2xl border border-[#E8DAD2] bg-white p-6">
                   <h3 className="font-serif text-xl text-[#332824]">
                     2. Préparer le message
                   </h3>
+
                   <p className="mt-2 text-sm text-[#75665F]">
-                    Utilisez {"{prenom}"} pour personnaliser le message
-                    automatiquement.
+                    Utilisez {"{prenom}"} pour personnaliser le prénom et {"{table}"} pour
+                    afficher automatiquement le numéro de table de chaque invité.
                   </p>
 
                   <textarea
@@ -1865,17 +1881,28 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
                     <p className="text-xs font-semibold uppercase tracking-wider text-[#9E4F38]">
                       Aperçu
                     </p>
+
                     <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#332824]">
-                      {whatsappMessage.replace(
-                        /\{prenom\}/gi,
-                        (
-                          guests.find((guest) =>
-                            whatsappSelected.includes(guest.id)
-                          )?.name || "cher invité"
-                        )
-                          .trim()
-                          .split(/\s+/)[0]
-                      )}
+                      {(() => {
+                        const selectedGuest = guests.find((guest) =>
+                          whatsappSelected.includes(guest.id)
+                        );
+
+                        const firstName = (selectedGuest?.name || "cher invité")
+                          .trim();
+                          //.split(/\s+/)[0];
+
+                        const tableName =
+                          selectedGuest?.wedding_tables?.name || "Non attribuée";
+
+                        const invitationCode =
+                          selectedGuest?.invitation_code || "Non disponible";
+
+                        return whatsappMessage
+                          .replace(/\{prenom\}/gi, firstName)
+                          .replace(/\{table\}/gi, tableName)
+                          .replace(/\{code\}/gi, invitationCode);
+                      })()}
                     </p>
                   </div>
 
@@ -1904,11 +1931,12 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
                   </button>
 
                   <p className="mt-4 text-xs leading-5 text-[#928982]">
-                    Chaque clic ouvre une conversation WhatsApp avec un
-                    message prérempli. L'envoi reste manuel. Le statut
-                    « Ouvert » ne signifie pas que le message a été envoyé.
+                    Chaque clic ouvre une conversation WhatsApp avec un message prérempli.
+                    L'envoi reste manuel. Le statut « Ouvert » ne signifie pas que le
+                    message a été envoyé.
                   </p>
                 </div>
+
               </section>
             </div>
           )}
@@ -2260,3 +2288,31 @@ function MessageStat({ label, value, description, accent, success }) {
 `}</style>
 
 }
+
+{/* 
+  Bonjour {prenom} 👋
+
+Nous avons le plaisir de vous confirmer votre place à notre réception.
+
+✨ Samedi 14 novembre 2026
+🥂 Réception à 16h00
+
+🌿 ESPACE ÉVENEMENTIEL HORIZON
+ABIDJAN, YOPOUGON MAROC
+✨ Itinéraire :
+https://maps.app.goo.gl/hRHfjxx9h5ZL2DvJ6
+
+💍 Votre table: {table}
+
+🤍 Votre carte d’invitation personnelle :
+https://mywedding-woad.vercel.app/ticket/SFZ5B
+
+🌿 Merci de la présenter à l’entrée. Elle permettra de vous accueillir simplement et avec attention.
+
+Nous nous réjouissons de vous retrouver.
+
+Avec toute notre affection,
+Axel & Ameline🤍
+
+À très bientôt ! ❤️
+*/}

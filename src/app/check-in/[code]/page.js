@@ -38,7 +38,12 @@ export default function CheckInPage() {
           check_ins (
             checked_in,
             checked_in_at
+          ),
+          wedding_tables (
+            id,
+            name
           )
+
         `)
         .eq("invitation_code", code)
         .single();
@@ -212,12 +217,17 @@ export default function CheckInPage() {
     );
   }
 
-  const companions = Number(rsvp?.number_of_guests || 0);
+  const isConfirmed =
+    rsvp?.attendance === "Présent" ||
+    rsvp?.attendance === "Présente";
 
-  const totalPeople =
-    rsvp?.attendance === "Présent"
-      ? companions + 1
-      : 0;
+  const companions = isConfirmed
+    ? Number(rsvp?.number_of_guests || 0)
+    : 0;
+
+  const totalPeople = isConfirmed ? companions + 1 : 0;
+
+  const tableName = guest.wedding_tables?.name || "Non attribuée";
 
   return (
     <main className="min-h-screen bg-[#FAF7F3] px-5 py-10">
@@ -250,20 +260,46 @@ export default function CheckInPage() {
               Code : {guest.invitation_code}
             </p>
 
-            {rsvp?.attendance === "Présent" ? (
+            {isConfirmed ? (
               <>
-                <div className="mt-8 rounded-2xl bg-[#F8E9E2] p-5">
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#928982]">
-                    Invitation confirmée
-                  </p>
+                <div className="mt-8 space-y-3">
+                  {/* Nombre total de personnes */}
+                  <div className="rounded-2xl bg-[#F8E9E2] p-5">
+                    <p className="text-xs uppercase tracking-[0.2em] text-[#928982]">
+                      Invitation confirmée
+                    </p>
 
-                  <p className="mt-3 text-3xl font-semibold text-[#9E4F38]">
-                    {totalPeople}
-                  </p>
+                    <p className="mt-3 text-3xl font-semibold text-[#9E4F38]">
+                      {totalPeople}
+                    </p>
 
-                  <p className="text-sm text-[#75665F]">
-                    {totalPeople > 1 ? "personnes" : "personne"}
-                  </p>
+                    <p className="text-sm text-[#75665F]">
+                      {totalPeople > 1 ? "personnes" : "personne"} au total
+                    </p>
+                  </div>
+
+                  {/* Informations pratiques */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-[#E8D8CE] bg-white p-4">
+                      <p className="text-xs uppercase tracking-wider text-[#928982]">
+                        Table
+                      </p>
+
+                      <p className="mt-2 font-serif text-2xl font-semibold text-[#9E4F38]">
+                        {tableName}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E8D8CE] bg-white p-4">
+                      <p className="text-xs uppercase tracking-wider text-[#928982]">
+                        Accompagnants
+                      </p>
+
+                      <p className="mt-2 font-serif text-2xl font-semibold text-[#9E4F38]">
+                        {companions}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {checkIn?.checked_in ? (
