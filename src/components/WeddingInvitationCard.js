@@ -23,8 +23,8 @@ export default function WeddingInvitationCard({
       : "https://mywedding-woad.vercel.app";
 
   const qrUrl = `${siteUrl}/check-in/${guest.invitation_code}`;
-  const totalPeople = 1 + Number(numberOfGuests || 0);
-
+  const totalPeople = Number(numberOfGuests || 0);
+  console.log(numberOfGuests)
   async function downloadCard() {
     if (!exportRef.current || downloading) return;
 

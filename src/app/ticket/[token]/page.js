@@ -14,7 +14,6 @@ export default function TicketPage() {
   const token = params?.token;
 
   const [guest, setGuest] = useState(null);
-  const [rsvp, setRsvp] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -60,25 +59,25 @@ export default function TicketPage() {
 
     loadTicket();
 
-    
-
     return () => {
       active = false;
     };
   }, [token]);
 
-  const attendance = guest?.rsvp?.attendance ?? guest?.attendance;
+  const rsvp = Array.isArray(guest?.rsvps)
+    ? guest.rsvps[0]
+    : guest?.rsvps ?? guest?.rsvp;
 
-    const companionCount =
-      attendance === "Présent" || attendance === "Présente"
-        ? Number(
-            guest?.rsvp?.number_of_guests ??
-            guest?.number_of_guests ??
-            0
-          )
-        : 0;
+  const attendance = String(guest?.attendance || "")
+    .trim()
+    .toLowerCase();
 
-    const totalGuests = 1 + companionCount;
+  const companionCount =
+    attendance === "présent" || attendance === "présente"
+      ? Number(guest?.number_of_guests || 0)
+      : 0;
+
+  const totalGuests = 1 + companionCount;
 
   return (
     <main className="min-h-screen bg-[#FAF7F3] px-4 py-8 text-[#332824]">
@@ -134,7 +133,6 @@ export default function TicketPage() {
               Retrouvez votre carte et votre table.
             </p>
           </div>
-
           <WeddingInvitationCard
             guest={guest}
             numberOfGuests={totalGuests}

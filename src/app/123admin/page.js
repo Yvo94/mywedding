@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import * as XLSX from "xlsx";
 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: "▦" },
@@ -38,19 +39,93 @@ export default function AdminPage() {
   const [savingTable, setSavingTable] = useState(false);
   const [tableSearch, setTableSearch] = useState("");
   // Filtres de l'état des invités
-const [reportSearch, setReportSearch] = useState("");
-const [reportStatus, setReportStatus] = useState("Tous");
-const [reportSide, setReportSide] = useState("Tous");
+  const [reportSearch, setReportSearch] = useState("");
+  const [reportStatus, setReportStatus] = useState("Tous");
+  const [reportSide, setReportSide] = useState("Tous");
 
   const [whatsappMessage, setWhatsappMessage] = useState(
     `Bonjour {prenom} 👋
 
-Nous sommes heureux de vous inviter au mariage d’Axel et Ameline 💍
+Nous avons le plaisir de vous confirmer votre place à notre réception.
 
-Nous serions ravis de vous compter parmi nous pour célébrer cette belle journée.
+✨ Samedi 14 novembre 2026
+🥂 Réception à 16h00
+
+🌿 ESPACE ÉVENEMENTIEL HORIZON
+ABIDJAN, YOPOUGON NIANGON
+✨ Itinéraire :
+https://maps.app.goo.gl/hRHfjxx9h5ZL2DvJ6
+
+💍 Votre table: *{table}*
+
+🤍 Votre carte d’invitation personnelle :
+https://mywedding-woad.vercel.app/ticket/{code}
+
+🌿 Merci de la présenter à l’entrée. Elle permettra de vous accueillir simplement et avec attention.
+
+Nous nous réjouissons de vous retrouver.
+
+Avec toute notre affection,
+Axel & Ameline🤍
 
 À très bientôt ! ❤️`
   );
+
+  const exportGuestsToExcel = () => {
+  if (!guests || guests.length === 0) {
+    alert("Aucun invité à exporter.");
+    return;
+  }
+
+  const rows = guests.map((guest) => {
+    const rsvp = getRsvp(guest);
+
+    return {
+      "Nom complet": guest.name || "",
+      "Téléphone WhatsApp": guest.whatsapp || "",
+      "Camp": guest.side || "",
+      "Lien": guest.relation || "",
+      "Table": guest.wedding_tables?.name || "Non attribuée",
+      "Code invitation": guest.invitation_code || "",
+      "Statut RSVP": getAttendance(guest) || "En attente",
+      "Nombre d'accompagnants": getCompanions(guest),
+      "Date de réponse": rsvp?.created_at
+        ? new Date(rsvp.created_at).toLocaleDateString("fr-FR")
+        : "",
+      "Message": rsvp?.message || "",
+    };
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+
+  worksheet["!cols"] = [
+    { wch: 28 },
+    { wch: 20 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 20 },
+    { wch: 18 },
+    { wch: 24 },
+    { wch: 18 },
+    { wch: 45 },
+  ];
+
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "État des invités"
+  );
+
+  const date = new Date().toLocaleDateString("fr-FR")
+    .replace(/\//g, "-");
+
+  XLSX.writeFile(
+    workbook,
+    `Etat_Invites_Axel_Ameline_${date}.xlsx`
+  );
+};
 
   useEffect(() => {
     loadDashboard();
@@ -1157,6 +1232,14 @@ Nous serions ravis de vous compter parmi nous pour célébrer cette belle journ�
                   className="rounded-xl bg-[#C66A4A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#9E4F38]"
                 >
                   Imprimer / Enregistrer en PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={exportGuestsToExcel}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#C66A4A] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#9E4F38]"
+                >
+                  <span>↓</span>
+                  Exporter Excel
                 </button>
               </section>
 
